@@ -204,13 +204,19 @@
   }
   @media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
   @media print {
-    body { background: #fff; font-size: 11px; }
-    .conn, .actions, .caret { display: none !important; }
+    body { background: #fff; font-size: 10.5px; }
+    .conn, .actions, .caret, #schema { display: none !important; }
     .wrap { padding: 0; max-width: none; }
-    .hero { padding-block: 0 12px; }
+    .hero { padding-block: 0 8px; gap: 16px; }
+    .hero h1 { font-size: 36px; }
     .editor, .panel, .ai, .tbl-card, .badge, .ai-card { box-shadow: none; }
-    section { margin-top: 20px; break-inside: avoid; }
-    .job { break-inside: avoid; }
+    section { margin-top: 14px; }
+    .job { break-inside: avoid; padding: 12px 0; }
+    .job ul li, .wins li { margin-bottom: 2px; }
+    .ai-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .skills { grid-template-columns: repeat(2, 1fr); }
+    .badges { grid-template-columns: repeat(3, 1fr); }
+    .eof { margin-top: 16px; }
   }
 </style>
 </head>
@@ -236,6 +242,7 @@
         <span><svg viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>Richmond, TX 77406</span>
         <span><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><a href="tel:+17734149337">(773) 414-9337</a></span>
         <span><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><a href="mailto:femi0784@gmail.com">femi0784@gmail.com</a></span>
+        <span><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg><a href="https://www.linkedin.com/in/femiakerele" target="_blank" rel="noopener">linkedin.com/in/femiakerele</a></span>
       </div>
       <div class="actions">
         <a class="btn primary" href="mailto:femi0784@gmail.com">Email Femi</a>
@@ -297,7 +304,7 @@
         <a href="#skills"><g class="tbl" transform="translate(370,150)">
           <rect class="b" x="0" y="0" width="240" height="106" rx="6"/><rect class="h" x="0" y="0" width="240" height="26" rx="6"/><rect class="h" x="0" y="14" width="240" height="12"/>
           <text class="t" x="10" y="18">dbo.skills</text>
-          <text class="pk" x="10" y="46">🔑 skill</text><text x="120" y="46">60+ rows</text>
+          <text class="pk" x="10" y="46">🔑 skill</text><text x="120" y="46">focused</text>
           <text x="10" y="66">domain</text><text x="120" y="66">HA/DR, cloud, ETL…</text>
           <text x="10" y="86">versions</text><text x="120" y="86">SQL 2008 → 2022</text>
         </g></a>
@@ -306,7 +313,7 @@
         <a href="#ai"><g class="tbl" transform="translate(710,20)">
           <rect class="b" x="0" y="0" width="220" height="106" rx="6"/><rect class="h" x="0" y="0" width="220" height="26" rx="6"/><rect class="h" x="0" y="14" width="220" height="12"/>
           <text class="t" x="10" y="18">dbo.ai_x_data</text>
-          <text class="pk" x="10" y="46">🔑 capability</text><text x="120" y="46">9 rows</text>
+          <text class="pk" x="10" y="46">🔑 capability</text><text x="120" y="46">4 rows</text>
           <text x="10" y="66">embedding</text><text x="120" y="66">vector(1536)</text>
           <text x="10" y="86">joined_on</text><text x="120" y="86">skills.skill</text>
         </g></a>
@@ -320,7 +327,7 @@
           <text x="10" y="86">issuers</text><text x="120" y="86">AWS, MS, CompTIA…</text>
         </g></a>
       </svg>
-      <div class="schema-note">-- one profile, many roles, many skills; AI capabilities are joined on the data skills they extend</div>
+      <div class="schema-note">-- one profile, three roles, focused skills; AI × Data is adjacent learning on top of DBA ops</div>
     </div>
   </section>
 
@@ -328,8 +335,8 @@
   <section id="profile">
     <div class="q"><code><span class="kw">SELECT</span> summary <span class="kw">FROM</span> dbo.profile;</code><h2>Profile</h2><span class="rows">1 row</span></div>
     <div class="panel">
-      <p>Highly accomplished SQL Server Database Administrator with over 10 years of experience managing complex enterprise environments. Proven ability to lead and manage a global team, overseeing 1,000+ servers and 3,500+ databases (including 400 mission-critical), and delivering successful migrations to Azure SQL Managed Instance. Efficient in performance tuning, security, high availability (AlwaysOn Availability Groups, log shipping, mirroring), disaster recovery, and data warehousing.</p>
-      <p>Holds a Python certification, leveraging T-SQL and Python scripting for automation and data manipulation. Exceptional expertise in Microsoft Azure and Amazon Web Services (AWS) with solid ability to design, deploy, manage, and optimize cloud infrastructure for scalability, performance, and cost-efficiency. Skilled in Infrastructure as a Service (IaaS), Platform as a Service (PaaS), and Serverless Computing. Eager to leverage cloud skills to contribute to a dynamic and innovative team.</p>
+      <p>Cloud / SQL Server DBA with 10+ years owning enterprise estates: 1,000+ servers, 3,500+ databases (400+ mission-critical), and 100+ migrations to Azure SQL Managed Instance and AWS. Deep in AlwaysOn Availability Groups, failover clustering, log shipping, replication, backup/DR, and performance tuning (Query Store, indexing, wait stats).</p>
+      <p>Leads a global DBA team, guides CAB/change, and automates ops with T-SQL, PowerShell, and Python (PCAP). Azure &amp; AWS across IaaS and PaaS. Currently extending that stack into AI × Data (vector search, RAG guardrails, Copilot-assisted T-SQL) without losing production rigor.</p>
     </div>
   </section>
 
@@ -345,127 +352,77 @@
       <article class="job">
         <div class="job-head"><h3>Cloud Database Engineer <span>Conduent Business Services LLC</span></h3><div class="dates">Apr 2018 – Present</div></div>
         <ul>
-          <li>Act as an expert technical resource, providing guidance to clients and development staff throughout implementation.</li>
-          <li>Conduct database upgrades and patching, ensuring compatibility with applications and resolving any upgrade-related issues.</li>
-          <li>Configure and manage database mirroring, replication, and clustering to ensure high availability and disaster recovery capabilities.</li>
-          <li>Develop and maintain database backup and recovery strategies, including automated backup schedules, point-in-time recovery, and disaster recovery procedures.</li>
-          <li>Manage a global team responsible for over 1,000 SQL servers, supporting 3,500 databases, including 400+ mission-critical ones.</li>
-          <li>Perform migrations and upgrades from legacy to SQL Server 2017, 2019, and 2022.</li>
-          <li>Attend weekly CAB meetings with Production Support and Development teams, providing guidance on changes and deployments.</li>
-          <li>Configure, maintain, and troubleshoot log shipping, mirroring, AlwaysOn Availability Groups, and replication.</li>
+          <li>Lead a global DBA team owning 1,000+ SQL Server instances and 3,500+ databases (400+ mission-critical).</li>
+          <li>Design and operate HA/DR: AlwaysOn Availability Groups, clustering, log shipping, mirroring, and replication.</li>
+          <li>Own backup/recovery (automated schedules, PITR, DR runbooks) and bi-weekly patching with app-compatible upgrades through SQL Server 2022.</li>
+          <li>Advise clients and developers on implementations; sit weekly CAB with Production Support and Development on changes/deployments.</li>
         </ul>
         <div class="wins"><h4>Key contributions</h4><ul>
-          <li>Migrated 100+ databases to Azure and AWS, reducing costs by 15% and enhancing scalability by 20%.</li>
-          <li>Maintained detailed client documentation, reducing troubleshooting time by 25% and improving efficiency.</li>
-          <li>Provided expert DB admin services, boosting application performance by 30% for Markets Business.</li>
-          <li>Implemented and maintained MS SQL Server replication, achieving 99.9% uptime and minimal downtime.</li>
-          <li>Conducted bi-weekly patching, ensuring system security and stability with zero critical vulnerabilities reported.</li>
+          <li>Migrated 100+ databases to Azure SQL Managed Instance and AWS (RDS/EC2), cutting hosting cost ~15% while improving elastic capacity.</li>
+          <li>Tuned Markets Business workloads (indexes, plans, Query Store) for ~30% faster application response.</li>
+          <li>Kept replication targets at 99.9% availability; documentation cut mean troubleshooting time ~25%.</li>
+          <li>Bi-weekly estate patching with no critical vulnerabilities left open in production windows.</li>
         </ul></div>
       </article>
 
       <article class="job">
-        <div class="job-head"><h3>Azure Database Administrator <span>Airtel</span></h3><div class="dates">Jun 2016 – Mar 2018</div></div>
+        <div class="job-head"><h3>Database Administrator <span>Airtel</span></h3><div class="dates">Jun 2016 – Mar 2018</div></div>
         <ul>
-          <li>Reviewed and tuned technology-specific database coding technologies (PL/SQL, iSQL, etc.) for optimal performance.</li>
-          <li>Ensured high availability of infrastructure, including the operating system and storage subsystem, for efficient operations.</li>
-          <li>Followed company guidelines to secure company data, both electronically and in written format, maintaining data integrity.</li>
-          <li>Planned and executed disaster recovery (DR) exercises on DR servers to ensure data recovery preparedness.</li>
-          <li>Performed regular health checks across thousands of servers using PowerShell scripts for proactive monitoring.</li>
-          <li>Assisted application development with logical/physical database design considerations, database refreshes, cloning, and backups.</li>
-          <li>Stabilized a volatile SharePoint application database server, implementing database mirroring for exceptional high availability.</li>
-          <li>Designed and supported robust ETL processes, enabling seamless data transfer from Oracle, Sybase, Access, and Excel.</li>
-          <li>Carried out database changes and code promotions following Enterprise Change Management processes and standards.</li>
-          <li>Built clusters of 2 nodes and 3 nodes with Active-Active and Active-Passive configurations.</li>
-          <li>Provided primary SQL Server support and monitored performance for all database instances.</li>
-          <li>Rewrote queries and stored procedures, and created missing indexes for reporting portal application optimization.</li>
-          <li>Monitored and fixed nightly maintenance, optimizing and improving DTS and SSIS packages.</li>
+          <li>Primary SQL Server DBA: health checks across large estates with PowerShell, performance monitoring, and change-controlled promotions.</li>
+          <li>Built 2- and 3-node Active-Active / Active-Passive clusters; installed SQL 2012/2014 AlwaysOn (2–3 replicas).</li>
+          <li>Stabilized SharePoint databases with mirroring; ran DR exercises; differential + log backup strategy for faster RPO/RTO.</li>
+          <li>Tuned T-SQL/PL-SQL, indexes, and SSIS/DTS packages; ETL from Oracle, Sybase, Access, and Excel.</li>
         </ul>
         <div class="wins"><h4>Key contributions</h4><ul>
-          <li>Performed discovery and documentation of existing SQL Server database servers, establishing a standardized support model.</li>
-          <li>Implemented DR exercises, minimizing downtime risks by 25% and ensuring data recovery preparedness.</li>
-          <li>Collaborated for schema optimization, boosting app speed by 20% and enhancing overall performance.</li>
-          <li>Successfully installed SQL 2012/2014 with AlwaysOn (2 &amp; 3 replicas), executing seamless upgrades and patches.</li>
-          <li>Enhanced MS SQL Server availability significantly by implementing Differential backup and LOG backup.</li>
+          <li>Discovery + standardized support model for previously undocumented SQL Server estates.</li>
+          <li>DR exercises and HA design reduced downtime risk; schema/index work improved reporting portal speed ~20%.</li>
         </ul></div>
       </article>
 
       <article class="job">
         <div class="job-head"><h3>Database Administrator <span>SamOpel International LTD</span></h3><div class="dates">Jan 2015 – May 2016</div></div>
         <ul>
-          <li>Installed and configured SQL Server 2008 and 2012 on Windows Server 2008 for database management.</li>
-          <li>Managed data import and export using Bulk Insert and BCP utility from text and Excel to SQL Server.</li>
-          <li>Collaborated with the development team to optimize schema and improve performance in SQL databases.</li>
-          <li>Led a migration project, transitioning Windows 2000 Active Directory to Windows 2003 Forest/Domain.</li>
-          <li>Maintained HP/Compaq ProLiant servers for smooth operations for Windows, Citrix, Exchange, SQL Server, and VMware ESX.</li>
-          <li>Set up and efficiently managed a farm of 8 SQL Servers and 10 Citrix Servers for streamlined operations.</li>
-          <li>Developed SSIS packages to seamlessly transfer data from various sources like MS Access and Excel to SQL Server.</li>
-          <li>Created and maintained essential schema objects, such as tables, views, and indexes, meeting user requirements.</li>
-          <li>Designed SSIS packages to extract data from OLTP sources, transferring it to the OLAP system in SQL Server.</li>
-          <li>Implemented failover clusters on the same and multiple subnets, crafting complex T-SQL queries for data manipulation.</li>
-          <li>Developed an insurance verification application using Microsoft Visual Basic, facilitating billing and collections processes.</li>
+          <li>Installed and administered SQL Server 2008/2012; failover clusters across same and multiple subnets.</li>
+          <li>Built SSIS/BCP pipelines (Access, Excel, OLTP → OLAP) and owned schema objects, indexing, and DB Mail alerting.</li>
         </ul>
         <div class="wins"><h4>Key contributions</h4><ul>
-          <li>Successfully migrated Windows 2000 Active Directory to Windows 2003 Forest/Domain.</li>
-          <li>Optimized schema and performance for SQL Server databases, resulting in improved query efficiency.</li>
-          <li>Developed an insurance verification application using Microsoft Visual Basic, enhancing billing and collections processes.</li>
-          <li>Created a new data warehouse, reducing reporting time by 30% and enabling real-time analytics.</li>
-          <li>Implemented efficient Index usage, resulting in a 40% improvement in query performance and reporting efficiency.</li>
-          <li>Configured DB Mail and created operators for email notifications, ensuring timely response to SQL job failures.</li>
+          <li>Stood up a reporting data warehouse that cut report turnaround ~30%.</li>
+          <li>Index redesign delivered ~40% faster key queries for business reporting.</li>
         </ul></div>
-        <div class="env">-- Environment: SQL Server 2008/2012 Enterprise Edition, Windows 2008/XP, SSIS, SSRS</div>
+        <div class="env">-- Environment: SQL Server 2008/2012 Enterprise, Windows Server 2008, SSIS, SSRS</div>
       </article>
     </div>
   </section>
 
   <!-- SKILLS -->
   <section id="skills">
-    <div class="q"><code><span class="kw">SELECT</span> skill <span class="kw">FROM</span> dbo.skills <span class="kw">GROUP BY</span> domain;</code><h2>Skills</h2><span class="rows">9 groups</span></div>
+    <div class="q"><code><span class="kw">SELECT</span> skill <span class="kw">FROM</span> dbo.skills <span class="kw">GROUP BY</span> domain;</code><h2>Skills</h2><span class="rows">4 groups</span></div>
     <div class="skills">
-      <div class="tbl-card"><header>core_competencies <em>10 rows</em></header><ul>
-        <li>Installation &amp; management of SQL Server 2008 / 2008R2 / 2012 / 2014 / 2016 / 2017 / 2019 / 2022</li><li>Query optimization, indexing &amp; system resource management</li><li>Azure SQL Managed Instance, Azure VMs &amp; cloud platforms</li><li>MongoDB, Redshift, PostgreSQL &amp; Microsoft SQL Server</li><li>ETL: SSIS, SSAS, SSRS, Power BI &amp; Tableau</li><li>Query Store, Extended Events, DTA, Profiler &amp; third-party tools</li><li>Azure, Oracle DB &amp; AWS cloud services</li><li>RDBMS design, tuning, optimization, backup &amp; recovery</li><li>Permissions, roles, logins &amp; data security</li><li>Documentation, change management &amp; performance metrics</li>
+      <div class="tbl-card"><header>sql_server_engine <em>core</em></header><ul>
+        <li>SQL Server 2008 → 2022</li><li>T-SQL · Query Store · XEvents</li><li>Indexing &amp; plan tuning</li><li>Profiler / DTA / Upgrade Advisor</li><li>Permissions, roles &amp; logins</li>
       </ul></div>
-      <div class="tbl-card"><header>high_availability_dr <em>8 rows</em></header><ul>
-        <li>AlwaysOn Availability Groups</li><li>Failover Cluster Configuration</li><li>Log Shipping &amp; Database Mirroring</li><li>Replication</li><li>Disaster Recovery Planning</li><li>Backup &amp; Recovery Strategies</li><li>Health Checks &amp; Capacity Planning</li><li>Performance Tuning &amp; Monitoring</li>
+      <div class="tbl-card"><header>ha_dr_backup <em>core</em></header><ul>
+        <li>AlwaysOn Availability Groups</li><li>Failover clustering</li><li>Log shipping · mirroring · replication</li><li>Backup / PITR / DR planning</li><li>Health checks &amp; capacity</li>
       </ul></div>
-      <div class="tbl-card"><header>cloud_platforms <em>8 rows</em></header><ul>
-        <li>Azure SQL &amp; Azure Virtual Machines</li><li>AWS RDS &amp; AWS EC2</li><li>Cloud Database Solutions &amp; Migrations</li><li>Migration of MS SQL Server</li><li>Cloud Migration</li><li>IaaS / PaaS / Serverless</li><li>System Upgrades &amp; Migrations</li><li>IT Infrastructure Management</li>
+      <div class="tbl-card"><header>cloud_migration <em>core</em></header><ul>
+        <li>Azure SQL Managed Instance</li><li>Azure VMs · AWS RDS · EC2</li><li>IaaS / PaaS migrations</li><li>SSIS · SSRS · SSAS · DTS</li><li>Power BI · Tableau (reporting)</li>
       </ul></div>
-      <div class="tbl-card"><header>data_engineering <em>9 rows</em></header><ul>
-        <li>ETL Processes &amp; Data Integration</li><li>Data Warehousing &amp; ETL</li><li>Data Import &amp; Export</li><li>Bulk Data Operations</li><li>Data Mapping / Warehouse</li><li>Data Transformation Services</li><li>Data Normalization &amp; Integrity</li><li>Database Design &amp; Schema Optimization</li><li>ETL Tools: SSIS, SSRS, SSAS, DTS</li>
-      </ul></div>
-      <div class="tbl-card"><header>engine_tooling <em>8 rows</em></header><ul>
-        <li>T-SQL Development &amp; Optimization</li><li>T-SQL &amp; PowerShell Scripting</li><li>Scripting &amp; Automation (PowerShell)</li><li>Database Engine Tuning Advisor</li><li>Query Advisor &amp; SQL Profiler</li><li>Upgrade Wizard &amp; Replication</li><li>Query Optimization &amp; Indexing</li><li>Optimization, Backup &amp; Recovery</li>
-      </ul></div>
-      <div class="tbl-card"><header>security_admin <em>6 rows</em></header><ul>
-        <li>Data Security &amp; Compliance</li><li>Access Control / Permissions Management</li><li>SQL Login Implementation</li><li>Windows Server Administration</li><li>System Administration 2008 / 2012</li><li>R2 / 2016 Windows Server</li>
-      </ul></div>
-      <div class="tbl-card"><header>operations <em>6 rows</em></header><ul>
-        <li>Change Management &amp; Implementation</li><li>System Configuration &amp; Maintenance</li><li>Technical Troubleshooting</li><li>Process Improvement</li><li>Project Management</li><li>Microsoft Office</li>
-      </ul></div>
-      <div class="tbl-card"><header>people <em>4 rows</em></header><ul>
-        <li>Leadership &amp; Team Collaboration</li><li>Client Engagement &amp; Support</li><li>Documentation &amp; Reporting</li><li>Global DBA team management</li>
-      </ul></div>
-      <div class="tbl-card"><header>languages <em>4 rows</em></header><ul>
-        <li>T-SQL</li><li>Python (PCAP certified)</li><li>PowerShell</li><li>PL/SQL · iSQL</li>
+      <div class="tbl-card"><header>automation_platforms <em>adjacent</em></header><ul>
+        <li>PowerShell · Python (PCAP)</li><li>PL/SQL · iSQL</li><li>Windows Server 2008–2016</li><li>Oracle · PostgreSQL · MongoDB · Redshift</li><li>CAB / change management</li>
       </ul></div>
     </div>
   </section>
 
   <!-- AI × DATA -->
   <section id="ai">
-    <div class="q"><code><span class="kw">SELECT</span> a.capability <span class="kw">FROM</span> dbo.ai_x_data a <span class="kw">JOIN</span> dbo.skills s <span class="kw">ON</span> a.extends = s.skill;</code><h2>AI × Data</h2><span class="rows">9 rows</span></div>
+    <div class="q"><code><span class="kw">SELECT</span> a.capability <span class="kw">FROM</span> dbo.ai_x_data a <span class="kw">JOIN</span> dbo.skills s <span class="kw">ON</span> a.extends = s.skill;</code><h2>AI × Data</h2><span class="rows">4 rows · currently building</span></div>
     <div class="ai">
-      <p class="ai-join"><span class="cm">-- where 10+ years of database engineering meets the AI stack</span></p>
-      <div class="ai-grid">
-        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>Vector search in SQL Server &amp; Azure SQL</h3><p>Native <code>VECTOR</code> data type, <code>VECTOR_DISTANCE()</code> similarity queries, and vector indexes on SQL Server 2025 / Azure SQL — bringing semantic search to the same engine that already holds the business data.</p></div>
-        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>RAG over enterprise databases</h3><p>Retrieval-augmented generation pipelines: chunking, embeddings via Azure OpenAI / AWS Bedrock, retrieval from SQL, Cosmos DB and Azure AI Search, with row-level security respected end to end.</p></div>
-        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><path d="M4 17l6-6-6-6M12 19h8"/></svg>NL2SQL &amp; Copilot-assisted querying</h3><p>Prompt engineering for natural-language-to-T-SQL, Copilot in Azure SQL and SSMS, and guardrails (schema grounding, read-only roles, query cost limits) so generated SQL is safe to run.</p></div>
-        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 6-8 3 3"/></svg>AI-assisted performance tuning</h3><p>LLM-summarized Query Store, Extended Events and wait-stat data; anomaly detection on capacity and health-check telemetry gathered by the PowerShell monitoring already in place.</p></div>
-        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>Python + LLM automation for DBA ops</h3><p>PCAP-certified Python calling OpenAI / Azure OpenAI / Bedrock APIs to draft runbooks, triage job failures from DB Mail alerts, and generate migration assessments.</p></div>
-        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/><circle cx="8" cy="7" r="1.5"/><circle cx="14" cy="12" r="1.5"/><circle cx="10" cy="17" r="1.5"/></svg>Model Context Protocol (MCP) for databases</h3><p>Exposing SQL Server, Azure SQL and Cosmos DB to AI agents through MCP servers with least-privilege logins, audited tool calls and parameterised queries.</p></div>
-        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6v6H9z"/></svg>Data readiness for AI</h3><p>Governance for training and retrieval data: PII masking with Dynamic Data Masking, Always Encrypted, classification, lineage and quality checks before data reaches a model.</p></div>
-        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>LLM output evaluation &amp; annotation</h3><p>Hands-on evaluation and review of AI model responses against rubric-driven protocols — the same rigour applied to validating AI-generated SQL and schema recommendations.</p></div>
-        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 3"/></svg>Embeddings &amp; vector stores in the cloud</h3><p>Azure Cosmos DB vector search, AWS Aurora PostgreSQL <code>pgvector</code>, Amazon OpenSearch and Redshift ML — choosing the right store per workload, cost and latency.</p></div>
+      <p class="ai-join"><span class="cm">-- adjacent to production DBA work: labs and architecture study on top of SQL Server / Azure / AWS</span></p>
+      <div class="ai-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>Vector search in SQL / Azure SQL</h3><p>Native <code>VECTOR</code>, <code>VECTOR_DISTANCE()</code>, and vector indexes — semantic search beside the OLTP data.</p></div>
+        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>RAG with DBA guardrails</h3><p>Embeddings (Azure OpenAI / Bedrock) over SQL / Cosmos / AI Search with RLS, least-privilege, and audited retrieval.</p></div>
+        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><path d="M4 17l6-6-6-6M12 19h8"/></svg>NL2SQL &amp; Copilot-safe T-SQL</h3><p>Schema-grounded prompts, read-only roles, and cost limits so generated SQL is reviewable before it runs.</p></div>
+        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 6-8 3 3"/></svg>Ops automation + data readiness</h3><p>Python/LLM assist for runbooks and job triage; Dynamic Data Masking / Always Encrypted / classification before data hits a model.</p></div>
       </div>
     </div>
   </section>
@@ -499,8 +456,8 @@
   </section>
 
   <div class="eof">
-    <span>-- end of file · Femi Akerele · Richmond, TX</span>
-    <span><a href="mailto:femi0784@gmail.com">femi0784@gmail.com</a> · <a href="tel:+17734149337">(773) 414-9337</a></span>
+    <span>-- end of file · Femi Akerele · Richmond, TX · US Citizen</span>
+    <span><a href="mailto:femi0784@gmail.com">femi0784@gmail.com</a> · <a href="tel:+17734149337">(773) 414-9337</a> · <a href="https://www.linkedin.com/in/femiakerele">LinkedIn</a></span>
   </div>
 </div>
 
