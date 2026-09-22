@@ -204,19 +204,41 @@
   }
   @media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
   @media print {
-    body { background: #fff; font-size: 10.5px; }
-    .conn, .actions, .caret, #schema { display: none !important; }
+    @page { size: letter; margin: 0.45in; }
+    body { background: #fff; font-size: 9.5px; line-height: 1.35; }
+    .conn, .actions, .caret, #schema, .timeline { display: none !important; }
     .wrap { padding: 0; max-width: none; }
-    .hero { padding-block: 0 8px; gap: 16px; }
-    .hero h1 { font-size: 36px; }
+    .hero { padding-block: 0 6px; gap: 12px; grid-template-columns: 1.1fr .9fr; }
+    .hero h1 { font-size: 28px; margin-bottom: 6px; }
+    .hero .role { font-size: 14px; }
+    .hero .sub { font-size: 11px; margin-bottom: 8px; }
+    .contact { font-size: 10px; gap: 4px 12px; margin-bottom: 0; }
+    .editor pre { min-height: 0; padding: 10px 12px; font-size: 10px; }
+    .grid .cell { padding: 8px 10px; }
+    .grid .cell b { font-size: 18px; }
     .editor, .panel, .ai, .tbl-card, .badge, .ai-card { box-shadow: none; }
-    section { margin-top: 14px; }
-    .job { break-inside: avoid; padding: 12px 0; }
-    .job ul li, .wins li { margin-bottom: 2px; }
-    .ai-grid { grid-template-columns: repeat(2, 1fr) !important; }
-    .skills { grid-template-columns: repeat(2, 1fr); }
-    .badges { grid-template-columns: repeat(3, 1fr); }
-    .eof { margin-top: 16px; }
+    .panel { padding: 10px 12px; }
+    section { margin-top: 10px; }
+    .q { margin-bottom: 8px; }
+    .q h2 { font-size: 16px; }
+    .job { break-inside: avoid; padding: 8px 0; }
+    .job h3 { font-size: 13px; }
+    .job ul, .wins ul { padding-left: 14px; }
+    .job ul li, .wins li { margin-bottom: 1px; }
+    .wins { margin-top: 6px; padding: 8px 10px; }
+    .ai { padding: 12px; }
+    .ai-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+    .ai-card { padding: 8px 10px; }
+    .ai-card h3 { font-size: 12px; }
+    .ai-card p { font-size: 10px; }
+    .skills { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .tbl-card li { font-size: 10px; padding: 2px 6px; }
+    .creds { gap: 8px; }
+    .badges { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .badge { padding: 6px 8px 6px 10px; }
+    .badge b { font-size: 11px; }
+    .edu li { padding: 4px 0; }
+    .eof { margin-top: 10px; padding-top: 8px; font-size: 10px; }
   }
 </style>
 </head>
