@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Femi Akerele — Cloud Database Administrator. Cloud Solutions Specialist (Azure & AWS), High Availability and Performance Tuning Expert. Richmond, TX.">
+<meta name="author" content="Femi Akerele">
+<meta property="og:type" content="profile">
+<meta property="og:title" content="Femi Akerele — Cloud Database Administrator">
+<meta property="og:description" content="10+ years SQL Server · 1,000+ servers · 3,500+ databases · Azure & AWS · AlwaysOn, HA/DR, performance tuning, AI × Data.">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b5fa5'/%3E%3Ctext x='16' y='22' font-family='sans-serif' font-weight='700' font-size='17' fill='white' text-anchor='middle'%3EFA%3C/text%3E%3C/svg%3E">
+<title>Femi Akerele — Cloud Database Administrator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #eef1f5; --bg-2: #e3e8ef; --panel: #ffffff; --panel-2: #f6f8fb; --ink: #131c2b; --ink-2: #3a4759; --muted: #6a7789;
+    --line: #d5dce6; --line-2: #c0cad8;
+    --key: #0b5fa5;    /* SQL keyword blue */
+    --str: #a3372c;    /* string literal */
+    --fn: #6a3da3;     /* function purple */
+    --num: #0f7a4a;    /* numbers green */
+    --ok: #178a4c; --ok-soft: #e1f3e8;
+    --accent: #0b5fa5; --accent-soft: #e2edf8; --glow: rgba(11,95,165,.14);
+    --grid: rgba(19,28,43,.05);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b1119; --bg-2: #0f1722; --panel: #121b27; --panel-2: #172231; --ink: #e6edf5; --ink-2: #b7c3d2; --muted: #7f8ea1;
+      --line: #223043; --line-2: #2f4058;
+      --key: #6fb5ff; --str: #ffa38a; --fn: #c9a0ff; --num: #6fe0a5;
+      --ok: #3fd47f; --ok-soft: #123425;
+      --accent: #6fb5ff; --accent-soft: #14283e; --glow: rgba(111,181,255,.16);
+      --grid: rgba(230,237,245,.045);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1119; --bg-2: #0f1722; --panel: #121b27; --panel-2: #172231; --ink: #e6edf5; --ink-2: #b7c3d2; --muted: #7f8ea1;
+    --line: #223043; --line-2: #2f4058;
+    --key: #6fb5ff; --str: #ffa38a; --fn: #c9a0ff; --num: #6fe0a5;
+    --ok: #3fd47f; --ok-soft: #123425;
+    --accent: #6fb5ff; --accent-soft: #14283e; --glow: rgba(111,181,255,.16);
+    --grid: rgba(230,237,245,.045);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--ink);
+    background: var(--bg);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 28px 28px;
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; font-size: 15px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover, a:focus-visible { text-decoration: underline; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+  .mono { font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; }
+  .kw { color: var(--key); font-weight: 600; } .st { color: var(--str); } .fn { color: var(--fn); } .nm { color: var(--num); } .cm { color: var(--muted); font-style: italic; }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding-inline: 16px; padding-block: 0 64px; }
+
+  /* Connection bar */
+  .conn { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; margin-inline: -16px; padding: 8px 16px; background: color-mix(in srgb, var(--panel) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 18px; flex-wrap: wrap; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; color: var(--muted); }
+  .conn .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); display: inline-block; margin-right: 6px; }
+  .conn b { color: var(--ink-2); font-weight: 500; }
+  .conn nav { margin-left: auto; display: flex; gap: 2px; flex-wrap: wrap; }
+  .conn nav a { padding: 4px 9px; border-radius: 4px; color: var(--muted); }
+  .conn nav a:hover { background: var(--accent-soft); color: var(--accent); text-decoration: none; }
+
+  /* Hero */
+  .hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 36px; align-items: center; padding-block: 56px 36px; }
+  .hero h1 { font-family: "Syne", "IBM Plex Sans", sans-serif; font-weight: 800; font-size: clamp(42px, 7vw, 76px); line-height: .95; letter-spacing: -.03em; margin: 0 0 14px; text-wrap: balance; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero .role { font-family: "Syne", sans-serif; font-weight: 600; font-size: 20px; margin: 0 0 6px; }
+  .hero .sub { color: var(--muted); margin: 0 0 18px; max-width: 52ch; }
+  .contact { display: flex; flex-wrap: wrap; gap: 8px 18px; font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--ink-2); margin-bottom: 18px; }
+  .contact span { display: inline-flex; align-items: center; gap: 7px; }
+  .contact svg { width: 14px; height: 14px; fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn { font: 500 13px "IBM Plex Sans", system-ui, sans-serif; padding: 8px 14px; border: 1px solid var(--line-2); background: var(--panel); color: var(--ink); border-radius: 6px; cursor: pointer; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn:hover { border-color: var(--accent); }
+
+  /* Query editor card */
+  .editor { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 30px 60px -40px var(--glow), 0 1px 0 var(--line); overflow: hidden; }
+  .editor .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--line); background: var(--panel-2); font-family: "JetBrains Mono", monospace; font-size: 12px; }
+  .editor .tabs span { padding: 8px 14px; color: var(--muted); border-right: 1px solid var(--line); }
+  .editor .tabs span.on { color: var(--ink); background: var(--panel); border-bottom: 2px solid var(--accent); margin-bottom: -1px; }
+  .editor pre { margin: 0; padding: 18px 18px 14px; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13.5px; line-height: 1.65; white-space: pre-wrap; word-break: break-word; min-height: 118px; }
+  .caret { display: inline-block; width: 8px; height: 1.1em; background: var(--accent); vertical-align: text-bottom; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .result { border-top: 1px solid var(--line); }
+  .result .msg { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--muted); padding: 8px 18px; border-bottom: 1px solid var(--line); background: var(--panel-2); }
+  .result .msg b { color: var(--ok); font-weight: 500; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .grid .cell { padding: 14px 14px; border-right: 1px solid var(--line); min-width: 0; overflow-wrap: anywhere; }
+  .grid .cell:last-child { border-right: 0; }
+  .grid .cell small { display: block; font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--muted); letter-spacing: .04em; margin-bottom: 2px; }
+  .grid .cell b { font-family: "Syne", sans-serif; font-weight: 700; font-size: 26px; line-height: 1.1; color: var(--accent); font-variant-numeric: tabular-nums; }
+
+  /* Section header as a query */
+  section { margin-top: 44px; scroll-margin-top: 64px; }
+  .q { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .q code { font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--ink-2); }
+  .q h2 { font-family: "Syne", sans-serif; font-weight: 700; font-size: 26px; letter-spacing: -.02em; margin: 0; }
+  .q .rows { margin-left: auto; font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--muted); }
+
+  /* Panels */
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 22px 24px; }
+  p { margin: 0 0 12px; color: var(--ink-2); max-width: 74ch; }
+  p:last-child { margin-bottom: 0; }
+
+  /* Schema diagram */
+  .schema { padding: 8px; overflow-x: auto; }
+  .schema svg { width: 100%; height: auto; min-width: 640px; display: block; font-family: "JetBrains Mono", ui-monospace, monospace; }
+  .schema .tbl rect.h { fill: var(--accent); }
+  .schema .tbl rect.b { fill: var(--panel-2); stroke: var(--line-2); }
+  .schema .tbl text { fill: var(--ink-2); font-size: 11.5px; }
+  .schema .tbl text.t { fill: #fff; font-weight: 600; font-size: 12px; }
+  .schema .tbl text.pk { fill: var(--num); }
+  .schema .fk { stroke: var(--line-2); stroke-width: 1.5; fill: none; }
+  .schema .fk-lbl { fill: var(--muted); font-size: 10px; }
+  .schema a .tbl { cursor: pointer; }
+  .schema a:hover rect.b { stroke: var(--accent); }
+  .schema-note { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--muted); padding: 6px 16px 10px; }
+
+  /* Timeline */
+  .timeline { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 18px; }
+  .tl-axis { display: grid; grid-template-columns: repeat(12, 1fr); font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--muted); }
+  .tl-axis span { border-left: 1px solid var(--line); padding-left: 4px; }
+  .tl-row { position: relative; height: 26px; }
+  .tl-bar { position: absolute; top: 3px; height: 20px; border-radius: 4px; background: var(--accent-soft); border: 1px solid var(--accent); color: var(--accent); font-family: "JetBrains Mono", monospace; font-size: 11px; padding: 0 8px; line-height: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Jobs */
+  .job { display: grid; grid-template-columns: 1fr; gap: 6px; padding: 22px 0; border-top: 1px solid var(--line); }
+  .job:first-of-type { border-top: 0; padding-top: 4px; }
+  .job-head { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; flex-wrap: wrap; }
+  .job h3 { margin: 0; font-family: "Syne", sans-serif; font-weight: 700; font-size: 19px; letter-spacing: -.01em; }
+  .job h3 span { font-family: "IBM Plex Sans", sans-serif; font-weight: 400; color: var(--muted); font-size: 15px; }
+  .job h3 span::before { content: " @ "; color: var(--line-2); }
+  .dates { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .job ul { margin: 6px 0 0; padding-left: 18px; color: var(--ink-2); }
+  .job li { margin-bottom: 4px; }
+  .wins { margin-top: 12px; background: var(--panel-2); border: 1px solid var(--line); border-left: 3px solid var(--num); padding: 12px 14px; border-radius: 6px; }
+  .wins h4 { margin: 0 0 6px; font-family: "JetBrains Mono", monospace; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; font-weight: 500; color: var(--num); }
+  .wins ul { margin: 0; padding-left: 18px; }
+  .wins li { margin-bottom: 3px; }
+  .env { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+  /* Skills as column list */
+  .skills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .tbl-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .tbl-card header { font-family: "JetBrains Mono", monospace; font-size: 12px; padding: 8px 12px; background: var(--panel-2); border-bottom: 1px solid var(--line); color: var(--ink-2); display: flex; justify-content: space-between; }
+  .tbl-card header em { font-style: normal; color: var(--muted); }
+  .tbl-card ul { list-style: none; margin: 0; padding: 8px 6px; display: flex; flex-wrap: wrap; gap: 5px; }
+  .tbl-card li { font-size: 12.5px; padding: 4px 9px; border-radius: 4px; background: var(--accent-soft); color: var(--ink-2); line-height: 1.3; }
+
+  /* AI section */
+  .ai { background: linear-gradient(135deg, var(--panel), var(--panel-2)); border: 1px solid var(--line); border-radius: 12px; padding: 26px; position: relative; overflow: hidden; }
+  .ai::before { content: ""; position: absolute; inset: -40% -20% auto auto; width: 420px; height: 420px; border-radius: 50%; background: radial-gradient(closest-side, var(--glow), transparent); pointer-events: none; }
+  .ai-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; position: relative; }
+  .ai-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+  .ai-card h3 { margin: 0 0 6px; font-family: "Syne", sans-serif; font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .ai-card h3 svg { width: 18px; height: 18px; fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .ai-card p { font-size: 13.5px; color: var(--ink-2); }
+  .ai-card code { font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--fn); }
+  .ai-join { font-family: "JetBrains Mono", monospace; font-size: 13px; margin: 0 0 18px; color: var(--ink-2); position: relative; }
+
+  /* Credentials */
+  .creds { display: grid; grid-template-columns: 1.3fr 1fr; gap: 14px; }
+  .badges { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .badge { border: 1px solid var(--line); border-radius: 8px; padding: 12px 12px 12px 14px; background: var(--panel); position: relative; }
+  .badge::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 3px; background: var(--accent); }
+  .badge b { display: block; font-size: 13.5px; font-weight: 600; line-height: 1.3; }
+  .badge small { color: var(--muted); font-family: "JetBrains Mono", monospace; font-size: 11px; }
+  .edu { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .edu li { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .edu li:last-child { border-bottom: 0; }
+  .edu b { font-weight: 600; display: block; }
+  .edu small { color: var(--muted); }
+  .edu .yr { font-family: "JetBrains Mono", monospace; color: var(--accent); font-size: 13px; }
+
+  .eof { margin-top: 44px; font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; gap: 24px; padding-block: 36px 24px; }
+    .skills, .ai-grid, .badges { grid-template-columns: repeat(2, 1fr); }
+    .creds { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .grid .cell:nth-child(2) { border-right: 0; }
+    .grid .cell:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+    .skills, .ai-grid, .badges { grid-template-columns: 1fr; }
+    .conn nav { margin-left: 0; }
+    .panel { padding: 18px 16px; }
+    .ai { padding: 18px 16px; }
+    .tl-axis span:nth-child(even) { color: transparent; }
+  }
+  @media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
+  @media print {
+    body { background: #fff; font-size: 11px; }
+    .conn, .actions, .caret { display: none !important; }
+    .wrap { padding: 0; max-width: none; }
+    .hero { padding-block: 0 12px; }
+    .editor, .panel, .ai, .tbl-card, .badge, .ai-card { box-shadow: none; }
+    section { margin-top: 20px; break-inside: avoid; }
+    .job { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="conn">
+    <span><i class="dot"></i><b>femi-akerele.cloud</b></span>
+    <span>db: <b>career</b></span>
+    <span>auth: <b>Azure &amp; AWS</b></span>
+    <span>uptime: <b>99.9%</b></span>
+    <nav>
+      <a href="#schema">schema</a><a href="#profile">profile</a><a href="#experience">experience</a><a href="#skills">skills</a><a href="#ai">ai × data</a><a href="#credentials">credentials</a>
+    </nav>
+  </div>
+
+  <header class="hero">
+    <div>
+      <h1>Femi <em>Akerele</em></h1>
+      <p class="role">Cloud Database Administrator</p>
+      <p class="sub">Cloud Solutions Specialist (Azure &amp; AWS) · High Availability and Performance Tuning Expert</p>
+      <div class="contact">
+        <span><svg viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>Richmond, TX 77406</span>
+        <span><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><a href="tel:+17734149337">(773) 414-9337</a></span>
+        <span><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><a href="mailto:femi0784@gmail.com">femi0784@gmail.com</a></span>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="mailto:femi0784@gmail.com">Email Femi</a>
+        <button class="btn" id="print-btn" type="button">Print / Save as PDF</button>
+      </div>
+    </div>
+
+    <div class="editor" aria-label="Query window">
+      <div class="tabs"><span class="on">SQLQuery1.sql</span><span>career (femi-akerele.cloud)</span></div>
+      <pre id="typed" aria-live="polite"></pre>
+      <div class="result">
+        <div class="msg">Query executed successfully. <b>(1 row affected)</b> · elapsed 00:00:00.010</div>
+        <div class="grid">
+          <div class="cell"><small>years_sql_server</small><b>10+</b></div>
+          <div class="cell"><small>servers_managed</small><b>1,000+</b></div>
+          <div class="cell"><small>databases</small><b>3,500+</b></div>
+          <div class="cell"><small>db_migrated</small><b>100+</b></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SCHEMA -->
+  <section id="schema">
+    <div class="q"><code><span class="kw">EXEC</span> sp_help <span class="st">'career'</span>;</code><h2>Schema</h2><span class="rows">5 tables · click a table to jump</span></div>
+    <div class="panel schema">
+      <svg viewBox="0 0 960 330" role="img" aria-label="Entity diagram: profile links to experience, skills, ai_x_data and credentials">
+        <!-- FK lines -->
+        <path class="fk" d="M250 118 C 300 118, 320 70, 370 70"/>
+        <path class="fk" d="M250 128 C 300 128, 320 190, 370 190"/>
+        <path class="fk" d="M610 70 C 660 70, 670 70, 710 70"/>
+        <path class="fk" d="M610 190 C 660 190, 670 230, 710 230"/>
+        <text class="fk-lbl" x="292" y="86">1 : n</text>
+        <text class="fk-lbl" x="292" y="170">1 : n</text>
+        <text class="fk-lbl" x="640" y="62">joins</text>
+        <text class="fk-lbl" x="640" y="222">earned</text>
+
+        <!-- profile -->
+        <a href="#profile"><g class="tbl" transform="translate(30,60)">
+          <rect class="b" x="0" y="0" width="220" height="150" rx="6"/><rect class="h" x="0" y="0" width="220" height="26" rx="6"/><rect class="h" x="0" y="14" width="220" height="12"/>
+          <text class="t" x="10" y="18">dbo.profile</text>
+          <text class="pk" x="10" y="46">🔑 name</text><text x="120" y="46">Femi Akerele</text>
+          <text x="10" y="66">title</text><text x="120" y="66">Cloud DBA</text>
+          <text x="10" y="86">location</text><text x="120" y="86">Richmond, TX</text>
+          <text x="10" y="106">clouds</text><text x="120" y="106">Azure, AWS</text>
+          <text x="10" y="126">work_auth</text><text x="120" y="126">US Citizen</text>
+        </g></a>
+
+        <!-- experience -->
+        <a href="#experience"><g class="tbl" transform="translate(370,20)">
+          <rect class="b" x="0" y="0" width="240" height="106" rx="6"/><rect class="h" x="0" y="0" width="240" height="26" rx="6"/><rect class="h" x="0" y="14" width="240" height="12"/>
+          <text class="t" x="10" y="18">dbo.experience</text>
+          <text class="pk" x="10" y="46">🔑 role_id</text><text x="120" y="46">3 rows</text>
+          <text x="10" y="66">employer</text><text x="120" y="66">Conduent, Airtel…</text>
+          <text x="10" y="86">span</text><text x="120" y="86">2015 → present</text>
+        </g></a>
+
+        <!-- skills -->
+        <a href="#skills"><g class="tbl" transform="translate(370,150)">
+          <rect class="b" x="0" y="0" width="240" height="106" rx="6"/><rect class="h" x="0" y="0" width="240" height="26" rx="6"/><rect class="h" x="0" y="14" width="240" height="12"/>
+          <text class="t" x="10" y="18">dbo.skills</text>
+          <text class="pk" x="10" y="46">🔑 skill</text><text x="120" y="46">60+ rows</text>
+          <text x="10" y="66">domain</text><text x="120" y="66">HA/DR, cloud, ETL…</text>
+          <text x="10" y="86">versions</text><text x="120" y="86">SQL 2008 → 2022</text>
+        </g></a>
+
+        <!-- ai -->
+        <a href="#ai"><g class="tbl" transform="translate(710,20)">
+          <rect class="b" x="0" y="0" width="220" height="106" rx="6"/><rect class="h" x="0" y="0" width="220" height="26" rx="6"/><rect class="h" x="0" y="14" width="220" height="12"/>
+          <text class="t" x="10" y="18">dbo.ai_x_data</text>
+          <text class="pk" x="10" y="46">🔑 capability</text><text x="120" y="46">9 rows</text>
+          <text x="10" y="66">embedding</text><text x="120" y="66">vector(1536)</text>
+          <text x="10" y="86">joined_on</text><text x="120" y="86">skills.skill</text>
+        </g></a>
+
+        <!-- credentials -->
+        <a href="#credentials"><g class="tbl" transform="translate(710,180)">
+          <rect class="b" x="0" y="0" width="220" height="106" rx="6"/><rect class="h" x="0" y="0" width="220" height="26" rx="6"/><rect class="h" x="0" y="14" width="220" height="12"/>
+          <text class="t" x="10" y="18">dbo.credentials</text>
+          <text class="pk" x="10" y="46">🔑 cred_id</text><text x="120" y="46">13 rows</text>
+          <text x="10" y="66">kind</text><text x="120" y="66">cert | degree</text>
+          <text x="10" y="86">issuers</text><text x="120" y="86">AWS, MS, CompTIA…</text>
+        </g></a>
+      </svg>
+      <div class="schema-note">-- one profile, many roles, many skills; AI capabilities are joined on the data skills they extend</div>
+    </div>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="profile">
+    <div class="q"><code><span class="kw">SELECT</span> summary <span class="kw">FROM</span> dbo.profile;</code><h2>Profile</h2><span class="rows">1 row</span></div>
+    <div class="panel">
+      <p>Highly accomplished SQL Server Database Administrator with over 10 years of experience managing complex enterprise environments. Proven ability to lead and manage a global team, overseeing 1,000+ servers and 3,500+ databases (including 400 mission-critical), and delivering successful migrations to Azure SQL Managed Instance. Efficient in performance tuning, security, high availability (AlwaysOn Availability Groups, log shipping, mirroring), disaster recovery, and data warehousing.</p>
+      <p>Holds a Python certification, leveraging T-SQL and Python scripting for automation and data manipulation. Exceptional expertise in Microsoft Azure and Amazon Web Services (AWS) with solid ability to design, deploy, manage, and optimize cloud infrastructure for scalability, performance, and cost-efficiency. Skilled in Infrastructure as a Service (IaaS), Platform as a Service (PaaS), and Serverless Computing. Eager to leverage cloud skills to contribute to a dynamic and innovative team.</p>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="q"><code><span class="kw">SELECT</span> * <span class="kw">FROM</span> dbo.experience <span class="kw">ORDER BY</span> start_date <span class="kw">DESC</span>;</code><h2>Experience</h2><span class="rows">3 rows</span></div>
+    <div class="panel">
+      <div class="timeline" aria-label="Career timeline 2015 to present">
+        <div class="tl-axis"><span>2015</span><span>2016</span><span>2017</span><span>2018</span><span>2019</span><span>2020</span><span>2021</span><span>2022</span><span>2023</span><span>2024</span><span>2025</span><span>2026</span></div>
+        <div class="tl-row"><div class="tl-bar" style="left:0%;width:11.4%">SamOpel</div><div class="tl-bar" style="left:11.8%;width:14.6%">Airtel</div><div class="tl-bar" style="left:27.1%;width:72.9%">Conduent · Cloud Database Engineer</div></div>
+      </div>
+
+      <article class="job">
+        <div class="job-head"><h3>Cloud Database Engineer <span>Conduent Business Services LLC</span></h3><div class="dates">Apr 2018 – Present</div></div>
+        <ul>
+          <li>Act as an expert technical resource, providing guidance to clients and development staff throughout implementation.</li>
+          <li>Conduct database upgrades and patching, ensuring compatibility with applications and resolving any upgrade-related issues.</li>
+          <li>Configure and manage database mirroring, replication, and clustering to ensure high availability and disaster recovery capabilities.</li>
+          <li>Develop and maintain database backup and recovery strategies, including automated backup schedules, point-in-time recovery, and disaster recovery procedures.</li>
+          <li>Manage a global team responsible for over 1,000 SQL servers, supporting 3,500 databases, including 400+ mission-critical ones.</li>
+          <li>Perform migrations and upgrades from legacy to SQL Server 2017, 2019, and 2022.</li>
+          <li>Attend weekly CAB meetings with Production Support and Development teams, providing guidance on changes and deployments.</li>
+          <li>Configure, maintain, and troubleshoot log shipping, mirroring, AlwaysOn Availability Groups, and replication.</li>
+        </ul>
+        <div class="wins"><h4>Key contributions</h4><ul>
+          <li>Migrated 100+ databases to Azure and AWS, reducing costs by 15% and enhancing scalability by 20%.</li>
+          <li>Maintained detailed client documentation, reducing troubleshooting time by 25% and improving efficiency.</li>
+          <li>Provided expert DB admin services, boosting application performance by 30% for Markets Business.</li>
+          <li>Implemented and maintained MS SQL Server replication, achieving 99.9% uptime and minimal downtime.</li>
+          <li>Conducted bi-weekly patching, ensuring system security and stability with zero critical vulnerabilities reported.</li>
+        </ul></div>
+      </article>
+
+      <article class="job">
+        <div class="job-head"><h3>Azure Database Administrator <span>Airtel</span></h3><div class="dates">Jun 2016 – Mar 2018</div></div>
+        <ul>
+          <li>Reviewed and tuned technology-specific database coding technologies (PL/SQL, iSQL, etc.) for optimal performance.</li>
+          <li>Ensured high availability of infrastructure, including the operating system and storage subsystem, for efficient operations.</li>
+          <li>Followed company guidelines to secure company data, both electronically and in written format, maintaining data integrity.</li>
+          <li>Planned and executed disaster recovery (DR) exercises on DR servers to ensure data recovery preparedness.</li>
+          <li>Performed regular health checks across thousands of servers using PowerShell scripts for proactive monitoring.</li>
+          <li>Assisted application development with logical/physical database design considerations, database refreshes, cloning, and backups.</li>
+          <li>Stabilized a volatile SharePoint application database server, implementing database mirroring for exceptional high availability.</li>
+          <li>Designed and supported robust ETL processes, enabling seamless data transfer from Oracle, Sybase, Access, and Excel.</li>
+          <li>Carried out database changes and code promotions following Enterprise Change Management processes and standards.</li>
+          <li>Built clusters of 2 nodes and 3 nodes with Active-Active and Active-Passive configurations.</li>
+          <li>Provided primary SQL Server support and monitored performance for all database instances.</li>
+          <li>Rewrote queries and stored procedures, and created missing indexes for reporting portal application optimization.</li>
+          <li>Monitored and fixed nightly maintenance, optimizing and improving DTS and SSIS packages.</li>
+        </ul>
+        <div class="wins"><h4>Key contributions</h4><ul>
+          <li>Performed discovery and documentation of existing SQL Server database servers, establishing a standardized support model.</li>
+          <li>Implemented DR exercises, minimizing downtime risks by 25% and ensuring data recovery preparedness.</li>
+          <li>Collaborated for schema optimization, boosting app speed by 20% and enhancing overall performance.</li>
+          <li>Successfully installed SQL 2012/2014 with AlwaysOn (2 &amp; 3 replicas), executing seamless upgrades and patches.</li>
+          <li>Enhanced MS SQL Server availability significantly by implementing Differential backup and LOG backup.</li>
+        </ul></div>
+      </article>
+
+      <article class="job">
+        <div class="job-head"><h3>Database Administrator <span>SamOpel International LTD</span></h3><div class="dates">Jan 2015 – May 2016</div></div>
+        <ul>
+          <li>Installed and configured SQL Server 2008 and 2012 on Windows Server 2008 for database management.</li>
+          <li>Managed data import and export using Bulk Insert and BCP utility from text and Excel to SQL Server.</li>
+          <li>Collaborated with the development team to optimize schema and improve performance in SQL databases.</li>
+          <li>Led a migration project, transitioning Windows 2000 Active Directory to Windows 2003 Forest/Domain.</li>
+          <li>Maintained HP/Compaq ProLiant servers for smooth operations for Windows, Citrix, Exchange, SQL Server, and VMware ESX.</li>
+          <li>Set up and efficiently managed a farm of 8 SQL Servers and 10 Citrix Servers for streamlined operations.</li>
+          <li>Developed SSIS packages to seamlessly transfer data from various sources like MS Access and Excel to SQL Server.</li>
+          <li>Created and maintained essential schema objects, such as tables, views, and indexes, meeting user requirements.</li>
+          <li>Designed SSIS packages to extract data from OLTP sources, transferring it to the OLAP system in SQL Server.</li>
+          <li>Implemented failover clusters on the same and multiple subnets, crafting complex T-SQL queries for data manipulation.</li>
+          <li>Developed an insurance verification application using Microsoft Visual Basic, facilitating billing and collections processes.</li>
+        </ul>
+        <div class="wins"><h4>Key contributions</h4><ul>
+          <li>Successfully migrated Windows 2000 Active Directory to Windows 2003 Forest/Domain.</li>
+          <li>Optimized schema and performance for SQL Server databases, resulting in improved query efficiency.</li>
+          <li>Developed an insurance verification application using Microsoft Visual Basic, enhancing billing and collections processes.</li>
+          <li>Created a new data warehouse, reducing reporting time by 30% and enabling real-time analytics.</li>
+          <li>Implemented efficient Index usage, resulting in a 40% improvement in query performance and reporting efficiency.</li>
+          <li>Configured DB Mail and created operators for email notifications, ensuring timely response to SQL job failures.</li>
+        </ul></div>
+        <div class="env">-- Environment: SQL Server 2008/2012 Enterprise Edition, Windows 2008/XP, SSIS, SSRS</div>
+      </article>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="q"><code><span class="kw">SELECT</span> skill <span class="kw">FROM</span> dbo.skills <span class="kw">GROUP BY</span> domain;</code><h2>Skills</h2><span class="rows">9 groups</span></div>
+    <div class="skills">
+      <div class="tbl-card"><header>core_competencies <em>10 rows</em></header><ul>
+        <li>Installation &amp; management of SQL Server 2008 / 2008R2 / 2012 / 2014 / 2016 / 2017 / 2019 / 2022</li><li>Query optimization, indexing &amp; system resource management</li><li>Azure SQL Managed Instance, Azure VMs &amp; cloud platforms</li><li>MongoDB, Redshift, PostgreSQL &amp; Microsoft SQL Server</li><li>ETL: SSIS, SSAS, SSRS, Power BI &amp; Tableau</li><li>Query Store, Extended Events, DTA, Profiler &amp; third-party tools</li><li>Azure, Oracle DB &amp; AWS cloud services</li><li>RDBMS design, tuning, optimization, backup &amp; recovery</li><li>Permissions, roles, logins &amp; data security</li><li>Documentation, change management &amp; performance metrics</li>
+      </ul></div>
+      <div class="tbl-card"><header>high_availability_dr <em>8 rows</em></header><ul>
+        <li>AlwaysOn Availability Groups</li><li>Failover Cluster Configuration</li><li>Log Shipping &amp; Database Mirroring</li><li>Replication</li><li>Disaster Recovery Planning</li><li>Backup &amp; Recovery Strategies</li><li>Health Checks &amp; Capacity Planning</li><li>Performance Tuning &amp; Monitoring</li>
+      </ul></div>
+      <div class="tbl-card"><header>cloud_platforms <em>8 rows</em></header><ul>
+        <li>Azure SQL &amp; Azure Virtual Machines</li><li>AWS RDS &amp; AWS EC2</li><li>Cloud Database Solutions &amp; Migrations</li><li>Migration of MS SQL Server</li><li>Cloud Migration</li><li>IaaS / PaaS / Serverless</li><li>System Upgrades &amp; Migrations</li><li>IT Infrastructure Management</li>
+      </ul></div>
+      <div class="tbl-card"><header>data_engineering <em>9 rows</em></header><ul>
+        <li>ETL Processes &amp; Data Integration</li><li>Data Warehousing &amp; ETL</li><li>Data Import &amp; Export</li><li>Bulk Data Operations</li><li>Data Mapping / Warehouse</li><li>Data Transformation Services</li><li>Data Normalization &amp; Integrity</li><li>Database Design &amp; Schema Optimization</li><li>ETL Tools: SSIS, SSRS, SSAS, DTS</li>
+      </ul></div>
+      <div class="tbl-card"><header>engine_tooling <em>8 rows</em></header><ul>
+        <li>T-SQL Development &amp; Optimization</li><li>T-SQL &amp; PowerShell Scripting</li><li>Scripting &amp; Automation (PowerShell)</li><li>Database Engine Tuning Advisor</li><li>Query Advisor &amp; SQL Profiler</li><li>Upgrade Wizard &amp; Replication</li><li>Query Optimization &amp; Indexing</li><li>Optimization, Backup &amp; Recovery</li>
+      </ul></div>
+      <div class="tbl-card"><header>security_admin <em>6 rows</em></header><ul>
+        <li>Data Security &amp; Compliance</li><li>Access Control / Permissions Management</li><li>SQL Login Implementation</li><li>Windows Server Administration</li><li>System Administration 2008 / 2012</li><li>R2 / 2016 Windows Server</li>
+      </ul></div>
+      <div class="tbl-card"><header>operations <em>6 rows</em></header><ul>
+        <li>Change Management &amp; Implementation</li><li>System Configuration &amp; Maintenance</li><li>Technical Troubleshooting</li><li>Process Improvement</li><li>Project Management</li><li>Microsoft Office</li>
+      </ul></div>
+      <div class="tbl-card"><header>people <em>4 rows</em></header><ul>
+        <li>Leadership &amp; Team Collaboration</li><li>Client Engagement &amp; Support</li><li>Documentation &amp; Reporting</li><li>Global DBA team management</li>
+      </ul></div>
+      <div class="tbl-card"><header>languages <em>4 rows</em></header><ul>
+        <li>T-SQL</li><li>Python (PCAP certified)</li><li>PowerShell</li><li>PL/SQL · iSQL</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- AI × DATA -->
+  <section id="ai">
+    <div class="q"><code><span class="kw">SELECT</span> a.capability <span class="kw">FROM</span> dbo.ai_x_data a <span class="kw">JOIN</span> dbo.skills s <span class="kw">ON</span> a.extends = s.skill;</code><h2>AI × Data</h2><span class="rows">9 rows</span></div>
+    <div class="ai">
+      <p class="ai-join"><span class="cm">-- where 10+ years of database engineering meets the AI stack</span></p>
+      <div class="ai-grid">
+        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>Vector search in SQL Server &amp; Azure SQL</h3><p>Native <code>VECTOR</code> data type, <code>VECTOR_DISTANCE()</code> similarity queries, and vector indexes on SQL Server 2025 / Azure SQL — bringing semantic search to the same engine that already holds the business data.</p></div>
+        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>RAG over enterprise databases</h3><p>Retrieval-augmented generation pipelines: chunking, embeddings via Azure OpenAI / AWS Bedrock, retrieval from SQL, Cosmos DB and Azure AI Search, with row-level security respected end to end.</p></div>
+        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><path d="M4 17l6-6-6-6M12 19h8"/></svg>NL2SQL &amp; Copilot-assisted querying</h3><p>Prompt engineering for natural-language-to-T-SQL, Copilot in Azure SQL and SSMS, and guardrails (schema grounding, read-only roles, query cost limits) so generated SQL is safe to run.</p></div>
+        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 6-8 3 3"/></svg>AI-assisted performance tuning</h3><p>LLM-summarized Query Store, Extended Events and wait-stat data; anomaly detection on capacity and health-check telemetry gathered by the PowerShell monitoring already in place.</p></div>
+        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>Python + LLM automation for DBA ops</h3><p>PCAP-certified Python calling OpenAI / Azure OpenAI / Bedrock APIs to draft runbooks, triage job failures from DB Mail alerts, and generate migration assessments.</p></div>
+        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/><circle cx="8" cy="7" r="1.5"/><circle cx="14" cy="12" r="1.5"/><circle cx="10" cy="17" r="1.5"/></svg>Model Context Protocol (MCP) for databases</h3><p>Exposing SQL Server, Azure SQL and Cosmos DB to AI agents through MCP servers with least-privilege logins, audited tool calls and parameterised queries.</p></div>
+        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6v6H9z"/></svg>Data readiness for AI</h3><p>Governance for training and retrieval data: PII masking with Dynamic Data Masking, Always Encrypted, classification, lineage and quality checks before data reaches a model.</p></div>
+        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>LLM output evaluation &amp; annotation</h3><p>Hands-on evaluation and review of AI model responses against rubric-driven protocols — the same rigour applied to validating AI-generated SQL and schema recommendations.</p></div>
+        <div class="ai-card"><h3><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 3"/></svg>Embeddings &amp; vector stores in the cloud</h3><p>Azure Cosmos DB vector search, AWS Aurora PostgreSQL <code>pgvector</code>, Amazon OpenSearch and Redshift ML — choosing the right store per workload, cost and latency.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CREDENTIALS -->
+  <section id="credentials">
+    <div class="q"><code><span class="kw">SELECT</span> * <span class="kw">FROM</span> dbo.credentials <span class="kw">WHERE</span> kind <span class="kw">IN</span> (<span class="st">'cert'</span>, <span class="st">'degree'</span>);</code><h2>Credentials</h2><span class="rows">13 rows</span></div>
+    <div class="creds">
+      <div class="badges">
+        <div class="badge"><b>AWS Certified Solutions Architect</b><small>AWS</small></div>
+        <div class="badge"><b>AWS Certified Cloud Practitioner</b><small>AWS</small></div>
+        <div class="badge"><b>Azure Database Administrator Associate</b><small>Microsoft</small></div>
+        <div class="badge"><b>Azure Fundamentals</b><small>Microsoft</small></div>
+        <div class="badge"><b>Microsoft Certified Solutions Associate</b><small>Microsoft</small></div>
+        <div class="badge"><b>Certified Associate Python Programmer</b><small>Python Institute</small></div>
+        <div class="badge"><b>ITIL 4 Foundation</b><small>AXELOS Global Best Practice</small></div>
+        <div class="badge"><b>CompTIA Cloud+</b><small>CompTIA</small></div>
+        <div class="badge"><b>CompTIA Network+</b><small>CompTIA</small></div>
+        <div class="badge"><b>CompTIA A+</b><small>CompTIA</small></div>
+        <div class="badge"><b>Google IT Support Professional</b><small>Google</small></div>
+      </div>
+      <div class="panel">
+        <ul class="edu">
+          <li><div><b>Bachelor of Science (BSc), Cloud Computing</b><small>Western Governors University</small></div><span class="yr">2023</span></li>
+          <li><div><b>Masters in Computer Information</b><small>University of Benin</small></div><span class="yr">2014</span></li>
+          <li><div><b>Bachelor in Civil Engineering</b><small>University of Benin</small></div><span class="yr">2009</span></li>
+        </ul>
+        <div class="env" style="margin-top:14px">-- work_authorization: US Citizen</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="eof">
+    <span>-- end of file · Femi Akerele · Richmond, TX</span>
+    <span><a href="mailto:femi0784@gmail.com">femi0784@gmail.com</a> · <a href="tel:+17734149337">(773) 414-9337</a></span>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var lines = [
+      [['kw','SELECT'],['','  name, title, clouds, ha_expert']],
+      [['kw','FROM'],['','    dbo.profile']],
+      [['kw','WHERE'],['','   clouds '],['kw','IN'],['',' ('],['st',"'Azure'"],['',', '],['st',"'AWS'"],['',')']],
+      [['kw','  AND'],['','   years_sql_server >= '],['nm','10']],
+      [['kw','  AND'],['','   ha_expert = '],['nm','1'],['',';']]
+    ];
+    var pre = document.getElementById('typed');
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function render(all) {
+      pre.innerHTML = '';
+      lines.forEach(function (ln, i) {
+        ln.forEach(function (tok) {
+          var s = document.createElement('span'); if (tok[0]) s.className = tok[0]; s.textContent = tok[1]; pre.appendChild(s);
+        });
+        if (i < lines.length - 1) pre.appendChild(document.createTextNode('\n'));
+      });
+      if (!all) { var c = document.createElement('span'); c.className = 'caret'; pre.appendChild(c); }
+    }
+    if (reduce) { render(true); return; }
+    // typewriter: reveal characters progressively
+    var flat = []; lines.forEach(function (ln, i) { ln.forEach(function (t) { for (var k = 0; k < t[1].length; k++) flat.push([t[0], t[1][k]]); }); if (i < lines.length - 1) flat.push(['', '\n']); });
+    var idx = 0, caret = document.createElement('span'); caret.className = 'caret';
+    pre.appendChild(caret);
+    var cur = null, curCls = null;
+    function step() {
+      if (idx >= flat.length) { return; }
+      var t = flat[idx++];
+      if (t[1] === '\n') { pre.insertBefore(document.createTextNode('\n'), caret); cur = null; }
+      else {
+        if (!cur || curCls !== t[0]) { cur = document.createElement('span'); if (t[0]) cur.className = t[0]; curCls = t[0]; pre.insertBefore(cur, caret); }
+        cur.textContent += t[1];
+      }
+      setTimeout(step, t[1] === '\n' ? 140 : 22);
+    }
+    step();
+  })();
+  document.getElementById('print-btn').addEventListener('click', function () { try { window.print(); } catch (e) {} });
+</script>
+</body>
+</html>
