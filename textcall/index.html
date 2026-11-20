@@ -181,6 +181,20 @@
   .meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 6px; }
   .heard-as { margin-top: 14px; font-size: 13px; color: var(--ink-2); background: var(--card-2); border-radius: 12px; padding: 10px 12px; line-height: 1.5; }
   .heard-as b { color: var(--ink); }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--card-2); border: 1px solid var(--line); border-radius: 14px; padding: 4px; gap: 4px; }
+  .seg button { border: 0; background: transparent; border-radius: 10px; padding: 10px; font-weight: 700; font-size: 14px; color: var(--muted); display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .seg button svg { width: 18px; height: 18px; }
+  .seg button.on { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .when-box { margin-top: 12px; display: grid; gap: 12px; }
+  .when-box .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .when-box .field { margin: 0; }
+  .when-sum { font-size: 13px; color: var(--accent); font-weight: 700; }
+  .sitem { display: flex; gap: 12px; align-items: center; background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); border-radius: 16px; padding: 12px; min-width: 0; }
+  .sitem .body { flex: 1; min-width: 0; }
+  .sitem .when { font-size: 12px; font-weight: 800; color: var(--accent); display: flex; align-items: center; gap: 5px; }
+  .sitem .when svg { width: 14px; height: 14px; }
+  .sitem .msg { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 2px 0 8px; color: var(--ink-2); }
+  .sitem .btns { display: flex; gap: 6px; }
   .actions { display: grid; grid-template-columns: auto 1fr; gap: 10px; padding: 12px 20px 16px; border-top: 1px solid var(--line); flex: none; background: var(--phone); }
 
   /* ---------- call ---------- */
@@ -358,6 +372,11 @@
         <div class="label">Who do you need to reach?</div>
         <div class="contacts" id="contacts"></div>
 
+        <div id="schedWrap" style="display:none">
+          <div class="label">Scheduled</div>
+          <div class="hist" id="scheduled"></div>
+        </div>
+
         <div class="label">Recent TextCalls</div>
         <div class="hist" id="history"></div>
       </div>
@@ -386,6 +405,33 @@
         <textarea class="input" id="msgInput" maxlength="500" placeholder="Type what you want them to hear…"></textarea>
         <div class="meta"><span id="charCount">0 / 500</span><span id="durEst">About 0 seconds</span></div>
         <div class="heard-as" id="heardAs"></div>
+
+        <div class="label">When</div>
+        <div class="seg" role="tablist" aria-label="When to call">
+          <button type="button" class="on" id="whenNow" role="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg>Now</button>
+          <button type="button" id="whenLater" role="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Schedule</button>
+        </div>
+        <div class="when-box" id="whenBox" style="display:none">
+          <div class="chips" id="whenPresets">
+            <button type="button" class="chip" data-preset="15">In 15 min</button>
+            <button type="button" class="chip" data-preset="60">In 1 hour</button>
+            <button type="button" class="chip" data-preset="tonight">Tonight 7 PM</button>
+            <button type="button" class="chip" data-preset="sunday">Sunday 9 AM</button>
+          </div>
+          <div class="two">
+            <label class="field"><span>Date</span><input class="input" type="date" id="whenDate"></label>
+            <label class="field"><span>Time</span><input class="input" type="time" id="whenTime"></label>
+          </div>
+          <label class="field"><span>Repeat</span>
+            <select class="input" id="whenRepeat">
+              <option value="none">Just once</option>
+              <option value="daily">Every day</option>
+              <option value="weekdays">Every weekday</option>
+              <option value="weekly">Every week</option>
+            </select>
+          </label>
+          <div class="when-sum" id="whenSum"></div>
+        </div>
       </div>
       <div class="actions">
         <button class="btn ghost" id="previewBtn" aria-label="Preview in your voice"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Preview</button>
@@ -492,6 +538,7 @@
     ],
     quick: ['Please bring my Bible, it is on the dining table.', 'Running late, start without me.', 'Call me back when you can, it is urgent.', 'I am in a meeting, I will call you in 30 minutes.', 'Please pick up the kids today.'],
     history: [],
+    scheduled: [],
   });
   let S;
   try { S = Object.assign(defaults(), JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { S = defaults(); }
@@ -659,10 +706,71 @@
     $('#addContact').onclick = () => { $('#sheet').classList.add('open'); $('#cName').focus(); };
     $('#history').innerHTML = S.history.length ? S.history.slice(0, 20).map(h => {
       const c = contact(h.to);
-      return `<button class="hitem" data-h="${h.id}">${avatarHTML(c)}<div class="body"><div class="top"><span class="name">${esc(c.name)}</span><span class="small muted">${ago(h.time)}</span></div><div class="msg">${esc(h.text)}</div>${statusPill(h)}</div></button>`;
+      return `<button class="hitem" data-h="${h.id}">${avatarHTML(c)}<div class="body"><div class="top"><span class="name">${esc(c.name)}</span><span class="small muted">${ago(h.time)}</span></div><div class="msg">${esc(h.text)}</div>${statusPill(h)}${h.scheduled ? ' <span class="pill neutral">Scheduled</span>' : ''}</div></button>`;
     }).join('') : `<div class="empty">No TextCalls yet.<br>Tap a contact above, or <b>New TextCall</b>, to send your first one.</div>`;
     $$('#history [data-h]').forEach(b => b.onclick = () => { detailId = b.dataset.h; go('detail'); });
+
+    const sched = [...(S.scheduled || [])].sort((a, b) => a.at - b.at);
+    $('#schedWrap').style.display = sched.length ? '' : 'none';
+    $('#scheduled').innerHTML = sched.map(s => {
+      const c = contact(s.to);
+      return `<div class="sitem">${avatarHTML(c)}<div class="body">
+        <div class="when">${ICON_CLOCK}${esc(whenText(s.at))}${s.repeat !== 'none' ? ' · ' + esc(REPEAT_LABEL[s.repeat]) : ''}</div>
+        <div class="top"><b>${esc(c.name)}</b></div>
+        <div class="msg">${esc(s.text)}</div>
+        <div class="btns"><button class="btn primary sm" data-snow="${s.id}">Call now</button><button class="btn ghost sm" data-scancel="${s.id}">Cancel</button></div>
+      </div></div>`;
+    }).join('');
+    $$('#scheduled [data-snow]').forEach(b => b.onclick = () => runScheduled(b.dataset.snow, true));
+    $$('#scheduled [data-scancel]').forEach(b => b.onclick = () => {
+      S.scheduled = S.scheduled.filter(s => s.id !== b.dataset.scancel); save(); render.home(); toast('Scheduled TextCall cancelled');
+    });
   };
+
+  /* ---------- scheduling ---------- */
+  const ICON_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+  const REPEAT_LABEL = { none: 'Once', daily: 'Every day', weekdays: 'Every weekday', weekly: 'Every week' };
+  const pad = n => String(n).padStart(2, '0');
+  const toDateVal = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const toTimeVal = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  function whenText(t) {
+    const d = new Date(t), now = new Date();
+    const tm = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    const day0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const diff = Math.floor((new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() - day0) / 864e5);
+    if (diff === 0) return `Today ${tm}`;
+    if (diff === 1) return `Tomorrow ${tm}`;
+    if (diff > 1 && diff < 7) return `${d.toLocaleDateString([], { weekday: 'long' })} ${tm}`;
+    return `${d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })} ${tm}`;
+  }
+  function nextRun(at, repeat) {
+    const d = new Date(at);
+    do {
+      if (repeat === 'daily') d.setDate(d.getDate() + 1);
+      else if (repeat === 'weekly') d.setDate(d.getDate() + 7);
+      else if (repeat === 'weekdays') { do { d.setDate(d.getDate() + 1); } while (d.getDay() === 0 || d.getDay() === 6); }
+      else return null;
+    } while (d.getTime() <= Date.now());
+    return d.getTime();
+  }
+  function runScheduled(id, manual) {
+    if (call && call.alive) { if (manual) toast('Finish the current call first'); return false; }
+    const s = S.scheduled.find(x => x.id === id); if (!s) return false;
+    // "Call now" on a repeating TextCall sends an extra one and leaves the schedule alone.
+    if (!(manual && s.repeat !== 'none')) {
+      const next = nextRun(s.at, s.repeat);
+      if (next) s.at = next; else S.scheduled = S.scheduled.filter(x => x.id !== id);
+    }
+    save();
+    if (!manual) toast('Scheduled TextCall starting');
+    startCall(s.to, s.text, { scheduled: true, repeat: s.repeat });
+    return true;
+  }
+  // Checks every few seconds while the page is open. A real app runs this on the server, so it works with the phone off.
+  setInterval(() => {
+    const due = (S.scheduled || []).filter(s => s.at <= Date.now()).sort((a, b) => a.at - b.at)[0];
+    if (due) runScheduled(due.id, false);
+  }, 3000);
 
   $('#cancelContact').onclick = () => $('#sheet').classList.remove('open');
   $('#sheet').onclick = e => { if (e.target.id === 'sheet') $('#sheet').classList.remove('open'); };
@@ -676,7 +784,30 @@
   };
 
   /* ---------- compose ---------- */
-  const draft = { to: null, text: '' };
+  const draft = { to: null, text: '', later: false };
+  function setWhen(later) {
+    draft.later = later;
+    $('#whenNow').classList.toggle('on', !later); $('#whenLater').classList.toggle('on', later);
+    $('#whenNow').setAttribute('aria-selected', !later); $('#whenLater').setAttribute('aria-selected', later);
+    $('#whenBox').style.display = later ? '' : 'none';
+    if (later && !$('#whenDate').value) setPreset('60');
+    updateCompose();
+  }
+  function setPreset(p) {
+    const d = new Date();
+    if (p === 'tonight') { d.setHours(19, 0, 0, 0); if (d <= new Date()) d.setDate(d.getDate() + 1); }
+    else if (p === 'sunday') { d.setHours(9, 0, 0, 0); const add = (7 - d.getDay()) % 7; d.setDate(d.getDate() + add); if (d <= new Date()) d.setDate(d.getDate() + 7); }
+    else { d.setMinutes(d.getMinutes() + Number(p)); d.setSeconds(0, 0); }
+    $('#whenDate').value = toDateVal(d); $('#whenTime').value = toTimeVal(d);
+    if (p === 'sunday') $('#whenRepeat').value = 'weekly';
+    updateCompose();
+  }
+  const schedAt = () => { const dv = $('#whenDate').value, tv = $('#whenTime').value; if (!dv || !tv) return NaN; const [y, m, d] = dv.split('-').map(Number), [hh, mm] = tv.split(':').map(Number); return new Date(y, m - 1, d, hh, mm).getTime(); };
+  $('#whenNow').onclick = () => setWhen(false);
+  $('#whenLater').onclick = () => setWhen(true);
+  $$('#whenPresets [data-preset]').forEach(b => b.onclick = () => setPreset(b.dataset.preset));
+  ['#whenDate', '#whenTime', '#whenRepeat'].forEach(s => $(s).addEventListener('input', () => updateCompose()));
+  $('#whenDate').min = toDateVal(new Date());
   render.compose = () => {
     if (!draft.to || !S.contacts.find(c => c.id === draft.to)) draft.to = S.contacts[0]?.id;
     $('#toSelect').innerHTML = S.contacts.map(c => `<option value="${c.id}">${esc(c.name)} · ${esc(c.phone)}</option>`).join('');
@@ -684,7 +815,8 @@
     $('#quickChips').innerHTML = S.quick.map((q, i) => `<button class="chip" data-q="${i}">${esc(q)}</button>`).join('');
     $$('#quickChips [data-q]').forEach(b => b.onclick = () => { $('#msgInput').value = S.quick[+b.dataset.q]; updateCompose(); });
     $('#msgInput').value = draft.text;
-    updateCompose();
+    $('#whenDate').value = ''; $('#whenTime').value = ''; $('#whenRepeat').value = 'none';
+    setWhen(false);
   };
   function updateCompose() {
     const c = contact(draft.to);
@@ -695,8 +827,16 @@
     const secs = Math.max(0, Math.round((words + 14) / 2.6));
     $('#charCount').textContent = `${draft.text.length} / 500`;
     $('#durEst').textContent = t ? `Call lasts about ${secs} seconds` : 'About 0 seconds';
-    $('#sendBtn').disabled = !t;
-    $('#sendLabel').textContent = `Call ${c.name}`;
+    let okWhen = true;
+    if (draft.later) {
+      const at = schedAt(), rep = $('#whenRepeat').value;
+      okWhen = at > Date.now();
+      $('#whenSum').textContent = isNaN(at) ? 'Pick a date and time' : !okWhen ? 'That time has already passed' :
+        `TextCall will ring ${c.name} ${whenText(at)}${rep !== 'none' ? ', ' + REPEAT_LABEL[rep].toLowerCase() : ''}.`;
+      $('#whenSum').style.color = okWhen ? '' : 'var(--bad)';
+    }
+    $('#sendBtn').disabled = !t || !okWhen;
+    $('#sendLabel').textContent = draft.later ? 'Schedule' : `Call ${c.name}`;
     $('#heardAs').innerHTML = t ? `<b>${esc(c.name)} will hear:</b> "${esc(announce())} ${esc(t)}"` : `${esc(c.name)} will hear your message spoken in your voice, after a short "This is a TextCall message from ${esc(S.name)}".`;
   }
   $('#toSelect').onchange = e => { draft.to = e.target.value; updateCompose(); };
@@ -707,7 +847,16 @@
     if (!synth) return toast('Speech is not available in this browser');
     speak(`${announce()} ${t}`);
   };
-  $('#sendBtn').onclick = () => { startCall(draft.to, $('#msgInput').value.trim()); };
+  $('#sendBtn').onclick = () => {
+    const text = $('#msgInput').value.trim(); if (!text) return;
+    if (!draft.later) return startCall(draft.to, text);
+    const at = schedAt(); if (!(at > Date.now())) return toast('Pick a time in the future');
+    const s = { id: 's' + Date.now(), to: draft.to, text, at, repeat: $('#whenRepeat').value };
+    S.scheduled.push(s); save();
+    draft.text = '';
+    go('home');
+    toast(`Scheduled for ${whenText(at)}`);
+  };
 
   /* ---------- call simulation ---------- */
   let call = null, detailId = null;
@@ -725,10 +874,10 @@
   const setStep = (k, state, note) => { const s = call.steps.find(x => x.k === k); if (!s) return; s.state = state; if (note !== undefined) s.note = note; drawTimeline(); };
   const setState = t => $('#callState').textContent = t;
 
-  async function startCall(to, text) {
+  async function startCall(to, text, opts = {}) {
     if (!text) return;
     const c = contact(to);
-    const h = { id: 'h' + Date.now(), to, text, time: Date.now(), status: 'calling', reply: '', events: [] };
+    const h = { id: 'h' + Date.now(), to, text, time: Date.now(), status: 'calling', reply: '', events: [], scheduled: !!opts.scheduled };
     S.history.unshift(h); save();
     draft.text = '';
     call = { h, c, steps: STEPS.map(s => ({ ...s, t: s.k === 'ring' ? `Ringing ${c.name}` : s.t })), alive: true };
@@ -737,7 +886,7 @@
     $('#callName').textContent = c.name;
     $('#theirPhone').innerHTML = ''; $('#callResult').innerHTML = '';
     drawTimeline();
-    log('Message queued');
+    log(opts.scheduled ? 'Scheduled TextCall started' + (opts.repeat && opts.repeat !== 'none' ? ` (${REPEAT_LABEL[opts.repeat].toLowerCase()})` : '') : 'Message queued');
     setState('Preparing your voice…'); setStep('voice', 'now');
     await sleep(1400); if (!call.alive) return;
     setStep('voice', 'done', 'Ready in 1.4 s'); log('Audio created');
