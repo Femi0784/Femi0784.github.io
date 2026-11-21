@@ -262,7 +262,10 @@
   @keyframes up { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
   .sheet h3 { margin: 0 0 14px; }
 
-  .toast { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); background: var(--ink); color: var(--phone); padding: 10px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 30; white-space: nowrap; }
+  .toast { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); background: var(--ink); color: var(--phone); padding: 10px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 30; white-space: normal; max-width: 86%; width: max-content; text-align: center; line-height: 1.4; }
+  .linkbtn { border: 0; background: none; padding: 0; color: var(--accent); font-weight: 700; text-decoration: underline; font-size: inherit; }
+  .card a, .result a { color: var(--accent); font-weight: 700; }
+  .two-btn { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .toast.show { opacity: 1; }
 
   .theme-toggle { position: fixed; top: 14px; right: 14px; z-index: 40; }
@@ -313,7 +316,7 @@
     <!-- ===== Voice setup ===== -->
     <section class="screen" data-screen="setup">
       <div class="topbar">
-        <button class="iconbtn" data-go="welcome" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <button class="iconbtn" data-go="welcome" id="setupBack" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
         <h2>Your voice</h2>
       </div>
       <div class="scroll">
@@ -321,7 +324,8 @@
 
         <div id="setupStep1">
           <div class="field"><span>Your name (said at the start of every call)</span><input class="input" id="nameInput" maxlength="30" autocomplete="given-name"></div>
-          <p class="small muted" style="margin:0 0 10px">Read this aloud in a quiet place. The words change each time so nobody can use a recording of someone else.</p>
+          <div id="elSetupNote" style="margin-bottom:14px"></div>
+          <p class="small muted" style="margin:0 0 10px;line-height:1.5">Read this aloud in your normal talking voice, in a quiet room, with the phone about 20 cm from your mouth. Aim for <b>1–2 minutes</b>. The words change each time so nobody can use someone else's recording.</p>
           <div class="script" id="script"></div>
           <button class="rec" id="recBtn" aria-label="Start recording"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5"/></svg></button>
           <div class="timer" id="recTimer">Tap to record</div>
@@ -329,6 +333,7 @@
             <div class="row-between"><span class="small"><b>Your sample</b> · <span id="recLen">0s</span></span><button class="btn ghost sm" id="reRecord">Record again</button></div>
             <audio id="recAudio" controls style="width:100%;margin-top:10px"></audio>
           </div>
+          <div class="small muted" style="text-align:center;margin-top:10px">or <label for="sampleFile" class="linkbtn" style="cursor:pointer">upload a recording</label> (voice memo, MP3, M4A or WAV)<input type="file" id="sampleFile" accept="audio/*" hidden></div>
           <label class="check"><input type="checkbox" id="consent"> <span>This is my own voice, and I agree TextCall can use it only for messages I send.</span></label>
           <button class="btn primary block" id="toStep2" disabled>Create my voice</button>
         </div>
@@ -340,13 +345,17 @@
             <p class="small muted" style="margin:0" id="buildMsg">Analysing tone and pitch</p>
             <div class="progress"><b id="buildBar"></b></div>
           </div>
+          <div id="buildErr"></div>
         </div>
 
         <div id="setupStep3" style="display:none">
-          <div class="result ok" style="margin-top:0"><b>Your voice is ready</b>In the real app this is a clone of your voice. This prototype uses a voice built into your browser, so pick the one closest to yours.</div>
-          <div class="field" style="margin-top:16px"><span>Closest voice</span><select class="input" id="voiceSelect"></select></div>
-          <div class="field"><span>Speed <b id="rateVal"></b></span><input type="range" id="rateInput" min="0.7" max="1.3" step="0.05"></div>
-          <div class="field"><span>Pitch <b id="pitchVal"></b></span><input type="range" id="pitchInput" min="0.6" max="1.4" step="0.05"></div>
+          <div class="result ok" style="margin-top:0" id="doneMsg"></div>
+          <div id="browserFields">
+            <div class="field" style="margin-top:16px"><span>Closest voice</span><select class="input" id="voiceSelect"></select></div>
+            <div class="field"><span>Speed <b id="rateVal"></b></span><input type="range" id="rateInput" min="0.7" max="1.3" step="0.05"></div>
+            <div class="field"><span>Pitch <b id="pitchVal"></b></span><input type="range" id="pitchInput" min="0.6" max="1.4" step="0.05"></div>
+          </div>
+          <p class="small muted" id="elFields" style="line-height:1.5">You can change quality and expressiveness later in <b>Me → ElevenLabs voice</b>.</p>
           <button class="btn ghost block" id="testVoice"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Hear a test</button>
           <button class="btn primary block" style="margin-top:10px" id="finishSetup">Done</button>
         </div>
@@ -480,6 +489,24 @@
           <div class="setrow"><div class="row-between"><div><div class="t">Leave voicemail</div><div class="d">Speak the message to voicemail if they don't answer.</div></div><label class="switch"><input type="checkbox" id="optVm"><span></span></label></div></div>
           <div class="setrow"><div class="row-between"><div><div class="t">Repeat message once</div><div class="d">Say it twice so it's easy to catch.</div></div><label class="switch"><input type="checkbox" id="optRepeat"><span></span></label></div></div>
         </div>
+        <div class="label">ElevenLabs voice</div>
+        <div class="card">
+          <p class="small" style="margin:0 0 12px;line-height:1.5">Connect your ElevenLabs account so messages are spoken in your real cloned voice. Your key is saved only in this browser on this device. <a href="https://elevenlabs.io/app/settings/api-keys" target="_blank" rel="noopener">Get your API key</a></p>
+          <label class="field"><span>API key</span><input class="input" type="password" id="elKey" autocomplete="off" spellcheck="false" placeholder="sk_…"></label>
+          <p class="small muted" style="margin:-6px 0 12px;line-height:1.45">If you restrict the key, allow Text to Speech and Voices (read and write).</p>
+          <div class="two-btn"><button class="btn ghost sm" id="elRemove">Remove</button><button class="btn primary sm" id="elSave">Save and connect</button></div>
+          <div class="small" id="elStatus" style="margin-top:10px;line-height:1.45"></div>
+          <div id="elVoiceArea" style="display:none;margin-top:14px">
+            <label class="field"><span>Voice to speak with</span><select class="input" id="elVoiceSel"></select></label>
+            <label class="field"><span>Quality</span><select class="input" id="elModel">
+              <option value="eleven_multilingual_v2">Most natural (Multilingual v2)</option>
+              <option value="eleven_flash_v2_5">Faster and cheaper (Flash v2.5)</option>
+            </select></label>
+            <label class="field"><span>Stability <b id="elStabVal"></b> · lower sounds more expressive, higher more steady</span><input type="range" id="elStab" min="0.2" max="0.9" step="0.05"></label>
+            <button class="btn ghost block" id="elTest"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Hear my cloned voice</button>
+          </div>
+        </div>
+
         <div class="label">Prototype</div>
         <div class="card">
           <p class="small" style="margin:0 0 12px;line-height:1.5">Everything here is stored only in this browser. No real calls are made.</p>
@@ -512,7 +539,7 @@
       <li>Pick a contact, type or tap a quick message.</li>
       <li>Watch the call happen, and play the recipient using the phone on the call screen.</li>
     </ol>
-    <p class="note">Prototype only. It uses your browser's built-in voice instead of a cloned one, and simulates the call. A real version needs a calling service and a voice-cloning service behind it.</p>
+    <p class="note">Prototype only: the call is simulated. To hear your real cloned voice, add your own ElevenLabs API key under <b>Me → ElevenLabs voice</b>. The key stays in your browser. Without a key, a built-in browser voice is used.</p>
   </aside>
 </main>
 
@@ -540,8 +567,10 @@
     history: [],
     scheduled: [],
   });
+  const EL_DEFAULTS = { key: '', voiceId: '', voiceName: '', model: 'eleven_multilingual_v2', stability: 0.5 };
   let S;
   try { S = Object.assign(defaults(), JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { S = defaults(); }
+  S.el = Object.assign({}, EL_DEFAULTS, S.el || {});
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* ignore */ } };
 
   try { const t = localStorage.getItem('textcall-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
@@ -569,7 +598,89 @@
   const loadVoices = () => { if (!synth) return; voices = synth.getVoices(); fillVoices(); };
   if (synth) { loadVoices(); synth.onvoiceschanged = loadVoices; }
   const pickVoice = () => voices.find(v => v.voiceURI === S.voiceURI) || voices.find(v => /^en/i.test(v.lang)) || voices[0];
-  function speak(text, { onWord, onEnd } = {}) {
+  /* ---------- ElevenLabs (real voice clone) ---------- */
+  const EL = 'https://api.elevenlabs.io/v1';
+  const elOn = () => !!(S.el.key && S.el.voiceId);
+  const canSpeak = () => !!synth || elOn();
+  async function elFetch(path, opts = {}) {
+    let r;
+    try { r = await fetch(EL + path, { ...opts, headers: { 'xi-api-key': S.el.key, ...(opts.headers || {}) } }); }
+    catch (e) { throw new Error('Could not reach ElevenLabs. Check your internet connection.'); }
+    if (!r.ok) {
+      let msg = `Error ${r.status}`;
+      try {
+        const j = await r.json(); const d = j.detail;
+        msg = (d && (d.message || d.status)) || (typeof d === 'string' ? d : '') || msg;
+      } catch (e) { /* not JSON */ }
+      if (r.status === 401) msg = `ElevenLabs did not accept the API key: ${msg}`;
+      throw new Error(msg);
+    }
+    return r;
+  }
+  async function elListVoices() { const j = await (await elFetch('/voices')).json(); return j.voices || []; }
+  const ttsCache = new Map();
+  async function elTTS(text) {
+    const k = [S.el.voiceId, S.el.model, S.el.stability, text].join('|');
+    if (ttsCache.has(k)) return ttsCache.get(k);
+    const r = await elFetch(`/text-to-speech/${encodeURIComponent(S.el.voiceId)}/with-timestamps?output_format=mp3_44100_128`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, model_id: S.el.model, voice_settings: { stability: S.el.stability, similarity_boost: 0.9, style: 0, use_speaker_boost: true } }),
+    });
+    const j = await r.json();
+    const bin = atob(j.audio_base64 || ''); const u8 = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    const res = { url: URL.createObjectURL(new Blob([u8], { type: 'audio/mpeg' })), al: j.alignment || null };
+    ttsCache.set(k, res);
+    return res;
+  }
+  // Turn the recording into a mono 16-bit WAV so ElevenLabs accepts it whatever the browser recorded in.
+  async function toWav(blob) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    const ac = new AC();
+    const decoded = await ac.decodeAudioData(await blob.arrayBuffer());
+    try { ac.close(); } catch (e) {}
+    const rate = 32000, len = Math.max(1, Math.ceil(decoded.duration * rate));
+    const off = new OfflineAudioContext(1, len, rate);
+    const src = off.createBufferSource(); src.buffer = decoded; src.connect(off.destination); src.start();
+    const pcm = (await off.startRendering()).getChannelData(0);
+    const buf = new ArrayBuffer(44 + pcm.length * 2), v = new DataView(buf);
+    const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+    w(0, 'RIFF'); v.setUint32(4, 36 + pcm.length * 2, true); w(8, 'WAVE'); w(12, 'fmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, rate, true);
+    v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, pcm.length * 2, true);
+    for (let i = 0; i < pcm.length; i++) { const s = Math.max(-1, Math.min(1, pcm[i])); v.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7fff, true); }
+    return new Blob([buf], { type: 'audio/wav' });
+  }
+  const wordStarts = text => { const out = []; let p = 0; text.split(/\s+/).forEach(w => { const i = text.indexOf(w, p); out.push(i); p = i + w.length; }); return out; };
+
+  let curAudio = null;
+  function stopSpeech() {
+    if (synth) synth.cancel();
+    if (curAudio) { const a = curAudio; curAudio = null; a.onended = a.onerror = null; a.pause(); }
+  }
+  function speak(text, cb = {}) {
+    stopSpeech();
+    if (elOn()) speakEL(text, cb); else speakBrowser(text, cb);
+  }
+  async function speakEL(text, { onWord, onEnd } = {}) {
+    let res;
+    try { res = await elTTS(text); }
+    catch (e) { toast(`ElevenLabs: ${e.message} Using the browser voice instead.`); return speakBrowser(text, { onWord, onEnd }); }
+    stopSpeech();
+    const a = new Audio(res.url); curAudio = a;
+    const times = wordStarts(text).map(i => res.al?.character_start_times_seconds?.[i]);
+    let last = -2;
+    const h = setInterval(() => {
+      if (a !== curAudio) return clearInterval(h);
+      let idx = -1; times.forEach((t, i) => { if (t != null && t <= a.currentTime) idx = i; });
+      if (idx !== last && idx >= 0) { last = idx; onWord && onWord(idx); }
+    }, 60);
+    const done = () => { clearInterval(h); if (curAudio === a) curAudio = null; onEnd && onEnd(); };
+    a.onended = done; a.onerror = done;
+    try { await a.play(); } catch (e) { clearInterval(h); toast('Tap play again: the browser blocked the sound'); done(); }
+  }
+
+  function speakBrowser(text, { onWord, onEnd } = {}) {
     if (!synth) { // no speech: fake timing
       const words = text.split(/\s+/); let i = 0;
       const step = () => { if (i < words.length) { onWord && onWord(i++); setTimeout(step, 280); } else onEnd && onEnd(); };
@@ -601,7 +712,7 @@
   /* ---------- navigation ---------- */
   let current = '';
   function go(name) {
-    if (synth && current === 'call' && name !== 'call') synth.cancel();
+    if (name !== current) stopSpeech();
     current = name;
     $$('.screen').forEach(s => s.classList.toggle('active', s.dataset.screen === name));
     const r = render[name]; r && r();
@@ -615,12 +726,24 @@
   const WORDS = ['morning', 'river', 'gentle', 'orange', 'window', 'harvest', 'bright', 'garden', 'family', 'travel', 'quiet', 'Sunday', 'silver', 'market', 'thunder', 'blanket', 'kitchen', 'promise', 'yellow', 'evening'];
   const makeScript = () => {
     const pick = () => WORDS[Math.floor(Math.random() * WORDS.length)];
-    return `Hello, this is ${S.name || 'me'}. I am setting up TextCall today. My check words are ${pick()}, ${pick()} and ${pick()}. When I can't talk, this voice will carry my message to the people I love.`;
+    return `Hello, this is ${S.name || 'me'}. I am setting up TextCall today, and my check words are ${pick()}, ${pick()} and ${pick()}. ` +
+      `When I can't talk, this voice will carry my message to the people I love. Maybe I'm in church, in a meeting, or driving, and someone needs to hear from me right away. ` +
+      `So let me speak the way I normally do. Good morning! How are you doing today? Please don't forget to bring the bag from the kitchen table. ` +
+      `I'm running a little late, but I'll be there soon. Can you call me back when you get this? Thank you so much, I really appreciate it. ` +
+      `On Sunday we usually leave home at half past eight, and the second service starts at eleven. ` +
+      `If anything changes, I'll send you a TextCall, and you'll hear it in my own voice. That's all for now. Bye bye, see you later!`;
   };
-  let rec = null, chunks = [], recStart = 0, recTimerH = null, hasSample = false;
+  let rec = null, chunks = [], recStart = 0, recTimerH = null, sample = null;
+  const mmss = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   render.setup = () => {
+    $('#setupBack').dataset.go = S.setupDone ? 'settings' : 'welcome';
     $('#nameInput').value = S.name;
     $('#script').textContent = makeScript();
+    sample = null; $('#recPlayback').style.display = 'none'; $('#recTimer').textContent = 'Tap to record';
+    $('#elSetupNote').innerHTML = S.el.key
+      ? `<div class="result ok" style="margin:0"><b>Connected to ElevenLabs</b>Your recording will create a real clone of your voice in your ElevenLabs account.</div>`
+      : `<div class="result warn" style="margin:0"><b>Want your real voice?</b>Add your ElevenLabs API key in <button class="linkbtn" data-go="settings">Me → ElevenLabs voice</button> first. Without it, the prototype uses a browser voice.</div>`;
+    $('#toStep2').textContent = S.el.key ? 'Clone my voice' : 'Create my voice';
     showStep(1); updateSetupBtn();
   };
   function showStep(n) {
@@ -630,11 +753,12 @@
   $('#consent').onchange = updateSetupBtn;
   $('#nameInput').oninput = () => { S.name = $('#nameInput').value.trim(); save(); $('#script').textContent = makeScript(); updateSetupBtn(); };
 
+  const MAX_REC = 150;
   $('#recBtn').onclick = async () => {
     if (rec && rec.state === 'recording') { rec.stop(); return; }
-    if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) { toast('Recording not supported here, you can still continue'); return; }
+    if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) { toast('Recording is not supported here. Try uploading a recording instead.'); return; }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: true } });
       chunks = []; rec = new MediaRecorder(stream);
       rec.ondataavailable = e => chunks.push(e.data);
       rec.onstop = () => {
@@ -642,31 +766,78 @@
         clearInterval(recTimerH);
         $('#recBtn').classList.remove('live'); $('#recBtn').setAttribute('aria-label', 'Start recording');
         const secs = Math.round((Date.now() - recStart) / 1000);
-        $('#recAudio').src = URL.createObjectURL(new Blob(chunks, { type: rec.mimeType || 'audio/webm' }));
-        $('#recLen').textContent = secs + 's';
+        sample = { blob: new Blob(chunks, { type: rec.mimeType || 'audio/webm' }), file: false, name: 'textcall-sample', secs };
+        $('#recAudio').src = URL.createObjectURL(sample.blob);
+        $('#recLen').textContent = mmss(secs);
         $('#recPlayback').style.display = '';
-        $('#recTimer').textContent = secs < 5 ? 'A bit short, try reading the whole script' : 'Nice, sample recorded';
-        hasSample = true;
+        $('#recTimer').textContent = secs < 30 ? 'A bit short. 1–2 minutes makes a much better clone.' : 'Nice, sample recorded';
       };
       rec.start(); recStart = Date.now();
       $('#recBtn').classList.add('live'); $('#recBtn').setAttribute('aria-label', 'Stop recording');
-      recTimerH = setInterval(() => { const s = Math.floor((Date.now() - recStart) / 1000); $('#recTimer').textContent = `Recording 0:${String(s).padStart(2, '0')} · tap to stop`; if (s >= 60) rec.stop(); }, 250);
+      recTimerH = setInterval(() => { const s = Math.floor((Date.now() - recStart) / 1000); $('#recTimer').textContent = `Recording ${mmss(s)} · tap to stop`; if (s >= MAX_REC) rec.stop(); }, 250);
       $('#recTimer').textContent = 'Recording 0:00 · tap to stop';
-    } catch (err) { toast('Microphone blocked, you can still continue'); }
+    } catch (err) { toast('Microphone blocked. Allow it in the browser, or upload a recording.'); }
   };
-  $('#reRecord').onclick = () => { $('#recPlayback').style.display = 'none'; $('#script').textContent = makeScript(); $('#recTimer').textContent = 'Tap to record'; };
+  $('#reRecord').onclick = () => { sample = null; $('#recPlayback').style.display = 'none'; $('#script').textContent = makeScript(); $('#recTimer').textContent = 'Tap to record'; };
+  $('#sampleFile').onchange = e => {
+    const f = e.target.files[0]; e.target.value = '';
+    if (!f) return;
+    if (f.size > 10 * 1024 * 1024) return toast('That file is over 10 MB. Try a clip of 1–2 minutes.');
+    sample = { blob: f, file: true, name: f.name };
+    $('#recAudio').src = URL.createObjectURL(f); $('#recLen').textContent = f.name;
+    $('#recPlayback').style.display = ''; $('#recTimer').textContent = 'Recording uploaded';
+  };
 
+  async function elClone() {
+    const file = sample.file ? sample.blob : await toWav(sample.blob);
+    const name = `TextCall - ${S.name || 'Me'}`;
+    const fd = new FormData();
+    fd.append('name', name);
+    fd.append('files', file, sample.file ? sample.name : 'textcall-sample.wav');
+    fd.append('description', 'Created by the TextCall prototype');
+    const j = await (await elFetch('/voices/add', { method: 'POST', body: fd })).json();
+    if (!j.voice_id) throw new Error('ElevenLabs did not return a voice.');
+    S.el.voiceId = j.voice_id; S.el.voiceName = name; S.voiceKind = 'clone'; ttsCache.clear(); save();
+  }
   $('#toStep2').onclick = async () => {
-    showStep(2);
-    const msgs = ['Analysing tone and pitch', 'Learning how you pause', 'Matching your accent', 'Checking it sounds like you'];
-    for (let i = 0; i <= 100; i += 4) {
-      $('#buildBar').style.width = i + '%';
-      $('#buildMsg').textContent = msgs[Math.min(3, Math.floor(i / 26))];
-      await sleep(70);
+    if (S.el.key && !sample) return toast('Record or upload your voice first (1–2 minutes is best)');
+    showStep(2); $('#buildErr').innerHTML = '';
+    const msgs = S.el.key
+      ? ['Preparing your recording', 'Uploading to ElevenLabs', 'Cloning your voice', 'Almost done']
+      : ['Analysing tone and pitch', 'Learning how you pause', 'Matching your accent', 'Checking it sounds like you'];
+    let pct = 0;
+    const anim = setInterval(() => {
+      pct = Math.min(pct + (S.el.key ? 1 : 4), S.el.key ? 92 : 100);
+      $('#buildBar').style.width = pct + '%';
+      $('#buildMsg').textContent = msgs[Math.min(3, Math.floor(pct / 26))];
+    }, S.el.key ? 120 : 70);
+    if (S.el.key) {
+      try { await elClone(); }
+      catch (e) {
+        clearInterval(anim);
+        $('#buildErr').innerHTML = `<div class="result warn"><b>ElevenLabs couldn't clone your voice</b>${esc(e.message)}</div>
+          <div style="display:grid;gap:8px;margin-top:10px"><button class="btn primary" id="cloneRetry">Try again</button><button class="btn ghost" id="cloneBack">Back to recording</button><button class="btn ghost" id="cloneSkip">Use the browser voice for now</button></div>`;
+        $('#cloneRetry').onclick = () => $('#toStep2').onclick();
+        $('#cloneBack').onclick = () => showStep(1);
+        $('#cloneSkip').onclick = () => { S.voiceKind = 'recorded'; save(); showStep(3); fillStep3(); };
+        return;
+      }
+    } else {
+      await sleep(1800);
+      S.voiceKind = sample ? 'recorded' : 'demo';
     }
-    S.voiceKind = hasSample ? 'recorded' : 'demo';
-    save(); showStep(3); fillVoices();
+    clearInterval(anim); $('#buildBar').style.width = '100%';
+    save(); showStep(3); fillStep3();
   };
+  function fillStep3() {
+    const el = elOn();
+    $('#doneMsg').innerHTML = el
+      ? '<b>Your cloned voice is ready</b>ElevenLabs made it from your recording. Tap "Hear a test" to check it sounds like you.'
+      : '<b>Your voice is ready</b>This uses a voice built into your browser, so pick the one closest to yours. Add your ElevenLabs key in Me to use your real voice.';
+    $('#browserFields').style.display = el ? 'none' : '';
+    $('#elFields').style.display = el ? '' : 'none';
+    if (!el) fillVoices();
+  }
   function fillVoices() {
     const sel = $('#voiceSelect'); if (!sel) return;
     const list = voices.filter(v => /^en/i.test(v.lang)).length ? voices.filter(v => /^en/i.test(v.lang)) : voices;
@@ -679,9 +850,15 @@
   $('#voiceSelect').onchange = e => { S.voiceURI = e.target.value; save(); };
   $('#rateInput').oninput = e => { S.rate = +e.target.value; $('#rateVal').textContent = S.rate.toFixed(2) + '×'; save(); };
   $('#pitchInput').oninput = e => { S.pitch = +e.target.value; $('#pitchVal').textContent = S.pitch.toFixed(2); save(); };
-  $('#testVoice').onclick = () => { if (!synth) return toast('Speech is not available in this browser'); speak(`Hi, it's ${S.name}. This is how my TextCall messages will sound.`); };
-  $('#finishSetup').onclick = () => { if (!S.voiceURI) { S.voiceURI = $('#voiceSelect').value; } S.setupDone = true; save(); go('home'); toast('Voice saved'); };
+  $('#testVoice').onclick = () => { if (!canSpeak()) return toast('Speech is not available in this browser'); speak(`Hi, it's ${S.name}. This is how my TextCall messages will sound.`); };
+  $('#finishSetup').onclick = () => { if (!elOn() && !S.voiceURI) { S.voiceURI = $('#voiceSelect').value; } S.setupDone = true; save(); go('home'); toast('Voice saved'); };
   $('#skipSetup').onclick = () => { S.setupDone = true; S.voiceKind = 'demo'; save(); go('home'); };
+
+  const voiceDesc = () => {
+    if (elOn()) return `Cloned with ElevenLabs · ${S.el.voiceName || 'your voice'}`;
+    const v = pickVoice();
+    return `Browser voice · ${v ? v.name : 'default'}`;
+  };
 
   /* ---------- home ---------- */
   const statusPill = h => ({
@@ -696,10 +873,9 @@
     const hr = new Date().getHours();
     $('#greeting').textContent = `${hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening'}, ${S.name || 'there'}`;
     $('#dayLine').textContent = new Date().toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
-    const v = pickVoice();
-    $('#voiceLine').textContent = S.voiceKind === 'recorded' ? `Recorded sample · speaking as ${v ? v.name : 'default'}` : `Demo voice · ${v ? v.name : 'browser default'}`;
-    $('#voicePill').className = 'pill ' + (S.voiceKind === 'recorded' ? 'ok' : 'warn');
-    $('#voicePill').textContent = S.voiceKind === 'recorded' ? 'Ready' : 'Demo';
+    $('#voiceLine').textContent = voiceDesc();
+    $('#voicePill').className = 'pill ' + (elOn() ? 'ok' : 'warn');
+    $('#voicePill').textContent = elOn() ? 'Cloned' : 'Browser voice';
     $('#contacts').innerHTML = S.contacts.map(c => `<button class="contact" data-contact="${c.id}">${avatarHTML(c)}<span>${esc(c.name)}</span></button>`).join('') +
       `<button class="contact add" id="addContact"><div class="avatar">+</div><span>Add</span></button>`;
     $$('#contacts [data-contact]').forEach(b => b.onclick = () => { draft.to = b.dataset.contact; go('compose'); });
@@ -826,7 +1002,7 @@
     const words = t ? t.split(/\s+/).length : 0;
     const secs = Math.max(0, Math.round((words + 14) / 2.6));
     $('#charCount').textContent = `${draft.text.length} / 500`;
-    $('#durEst').textContent = t ? `Call lasts about ${secs} seconds` : 'About 0 seconds';
+    $('#durEst').textContent = t ? `Call lasts about ${secs} seconds${elOn() ? ` · about ${fullScript(t).length} ElevenLabs credits` : ''}` : 'About 0 seconds';
     let okWhen = true;
     if (draft.later) {
       const at = schedAt(), rep = $('#whenRepeat').value;
@@ -844,7 +1020,7 @@
   $('#previewBtn').onclick = () => {
     const t = $('#msgInput').value.trim();
     if (!t) return toast('Type a message first');
-    if (!synth) return toast('Speech is not available in this browser');
+    if (!canSpeak()) return toast('Speech is not available in this browser');
     speak(`${announce()} ${t}`);
   };
   $('#sendBtn').onclick = () => {
@@ -888,8 +1064,19 @@
     drawTimeline();
     log(opts.scheduled ? 'Scheduled TextCall started' + (opts.repeat && opts.repeat !== 'none' ? ` (${REPEAT_LABEL[opts.repeat].toLowerCase()})` : '') : 'Message queued');
     setState('Preparing your voice…'); setStep('voice', 'now');
-    await sleep(1400); if (!call.alive) return;
-    setStep('voice', 'done', 'Ready in 1.4 s'); log('Audio created');
+    const t0 = Date.now();
+    if (elOn()) {
+      try {
+        await elTTS(fullScript(text));
+        setStep('voice', 'done', `Cloned voice ready in ${((Date.now() - t0) / 1000).toFixed(1)} s`); log('Audio created with your ElevenLabs voice');
+      } catch (e) {
+        setStep('voice', 'done', 'ElevenLabs failed, so the browser voice will be used'); log('ElevenLabs error: ' + e.message); toast(e.message);
+      }
+    } else {
+      await sleep(1400);
+      setStep('voice', 'done', 'Browser voice ready in 1.4 s'); log('Audio created');
+    }
+    if (!call.alive) return;
     setStep('ring', 'now', c.phone); setState(`Calling ${c.name}…`);
     log('Calling ' + c.phone);
     showIncoming();
@@ -949,14 +1136,14 @@
   }
   function key(k) {
     if (k === '1') return finish('confirmed');
-    if (k === '2') { if (synth) synth.cancel(); log('Asked to replay'); answered(); return; }
+    if (k === '2') { stopSpeech(); log('Asked to replay'); answered(); return; }
     if (k === '9') { finish('heard', '', true); return; }
     toast(`Key ${k} does nothing`);
   }
 
   function finish(status, reply = '', blocked = false) {
     if (!call || !call.alive) return;
-    if (synth) synth.cancel();
+    stopSpeech();
     clearInterval(call.timerH);
     const c = call.c;
     $$('#spoken .w').forEach(el => { el.classList.add('said'); el.classList.remove('cur'); });
@@ -1027,17 +1214,62 @@
         <button class="btn ghost" id="hearIt"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Hear it</button>
         <button class="btn primary" id="resend">Send again</button>
       </div>`;
-    $('#hearIt').onclick = () => synth ? speak(`${announce()} ${h.text}`) : toast('Speech is not available');
+    $('#hearIt').onclick = () => canSpeak() ? speak(`${announce()} ${h.text}`) : toast('Speech is not available');
     $('#resend').onclick = () => startCall(h.to, h.text);
   };
 
   /* ---------- settings ---------- */
   render.settings = () => {
     $('#setName').textContent = S.name || 'you';
-    const v = pickVoice();
-    $('#setVoiceDesc').textContent = (S.voiceKind === 'recorded' ? 'Recorded sample' : 'Demo voice') + (v ? ' · ' + v.name : '');
+    $('#setVoiceDesc').textContent = voiceDesc();
+    $('#elKey').value = S.el.key; $('#elModel').value = S.el.model; $('#elStab').value = S.el.stability;
+    $('#elStabVal').textContent = Number(S.el.stability).toFixed(2);
+    if (S.el.key) loadElVoices(); else { $('#elVoiceArea').style.display = 'none'; $('#elStatus').textContent = 'Not connected. Messages use a browser voice.'; $('#elStatus').style.color = ''; }
     $('#optSms').checked = S.opts.sms; $('#optVm').checked = S.opts.vm; $('#optRepeat').checked = S.opts.repeat;
   };
+  async function loadElVoices() {
+    const st = $('#elStatus'); st.textContent = 'Connecting to ElevenLabs…'; st.style.color = '';
+    try {
+      const vs = await elListVoices();
+      const mineCat = v => v.category === 'cloned' || v.category === 'professional';
+      vs.sort((a, b) => (mineCat(b) - mineCat(a)) || a.name.localeCompare(b.name));
+      const mine = vs.filter(mineCat);
+      $('#elVoiceSel').innerHTML = '<option value="">Choose a voice…</option>' +
+        vs.map(v => `<option value="${esc(v.voice_id)}">${esc(v.name)}${mineCat(v) ? ` (your ${v.category === 'professional' ? 'professional ' : ''}clone)` : ''}</option>`).join('');
+      if (!S.el.voiceId && mine.length) { S.el.voiceId = mine[0].voice_id; S.el.voiceName = mine[0].name; S.voiceKind = 'clone'; save(); }
+      if (S.el.voiceId && !vs.some(v => v.voice_id === S.el.voiceId)) { S.el.voiceId = ''; S.el.voiceName = ''; save(); }
+      $('#elVoiceSel').value = S.el.voiceId || '';
+      $('#elVoiceArea').style.display = '';
+      st.style.color = 'var(--ok)';
+      st.textContent = mine.length
+        ? `Connected. ${mine.length} cloned voice${mine.length === 1 ? '' : 's'} found in your account.`
+        : 'Connected. No cloned voice yet: tap Redo under "Your voice" above to record and clone it.';
+      $('#setVoiceDesc').textContent = voiceDesc();
+    } catch (e) {
+      st.textContent = e.message; st.style.color = 'var(--bad)'; $('#elVoiceArea').style.display = 'none';
+    }
+  }
+  $('#elSave').onclick = () => {
+    const k = $('#elKey').value.trim();
+    if (!k) return toast('Paste your API key first');
+    if (k !== S.el.key) { S.el.key = k; S.el.voiceId = ''; S.el.voiceName = ''; ttsCache.clear(); save(); }
+    loadElVoices();
+  };
+  $('#elRemove').onclick = () => {
+    Object.assign(S.el, { key: '', voiceId: '', voiceName: '' }); if (S.voiceKind === 'clone') S.voiceKind = 'demo';
+    ttsCache.clear(); save(); render.settings(); toast('API key removed from this browser');
+  };
+  $('#elVoiceSel').onchange = e => {
+    const o = e.target.selectedOptions[0];
+    S.el.voiceId = e.target.value;
+    S.el.voiceName = e.target.value ? o.textContent.replace(/ \(your .*clone\)$/, '') : '';
+    S.voiceKind = S.el.voiceId ? 'clone' : 'demo'; save();
+    $('#setVoiceDesc').textContent = voiceDesc();
+  };
+  $('#elModel').onchange = e => { S.el.model = e.target.value; save(); };
+  $('#elStab').oninput = e => { S.el.stability = +e.target.value; $('#elStabVal').textContent = S.el.stability.toFixed(2); save(); };
+  $('#elTest').onclick = () => { if (!elOn()) return toast('Choose a voice first'); speak(`Hi, it's ${S.name}. This is how my TextCall messages will sound.`); };
+
   $('#optSms').onchange = e => { S.opts.sms = e.target.checked; save(); };
   $('#optVm').onchange = e => { S.opts.vm = e.target.checked; save(); };
   $('#optRepeat').onchange = e => { S.opts.repeat = e.target.checked; save(); };
